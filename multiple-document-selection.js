@@ -308,7 +308,7 @@ export class MultipleDocumentSelection {
                             menu.condition = function (li) {
                                 if (html.hasClass("multiple-select"))
                                     return false;
-                                return oldCondition ? oldCondition(li) : true;
+                                return typeof oldCondition === "function" ? oldCondition(li) : true;
                             }
                         }
                     }
@@ -377,7 +377,7 @@ export class MultipleDocumentSelection {
                         menu.condition = function (li) {
                             if (html.hasClass("multiple-select"))
                                 return false;
-                            return oldCondition ? oldCondition(li) : true;
+                            return typeof oldCondition === "function" ? oldCondition(li) : true;
                         }
                     }
                 }
@@ -457,7 +457,7 @@ export class MultipleDocumentSelection {
                         menu.condition = function (li) {
                             if (html.hasClass("multiple-select"))
                                 return false;
-                            return oldCondition ? oldCondition(li) : true;
+                            return typeof oldCondition === "function" ? oldCondition(li) : true;
                         }
                     }
                 }
@@ -490,7 +490,7 @@ export class MultipleDocumentSelection {
                         menu.condition = function (li) {
                             if (html.hasClass("multiple-select"))
                                 return false;
-                            return oldCondition ? oldCondition(li) : true;
+                            return typeof oldCondition === "function" ? oldCondition(li) : true;
                         }
                     }
                 }
