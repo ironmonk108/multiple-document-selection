@@ -2,13 +2,19 @@ import { MultipleDocumentSelection, log, error, setting, i18n } from './multiple
 
 export const WithOwnershipConfig = (ConfigClass) => {
     class MultipleDocumentOwnershipConfig extends ConfigClass {
+
+        static DEFAULT_OPTIONS = {
+            form: {
+                handler: MultipleDocumentOwnershipConfig.onSubmitForm
+            }
+        }
         constructor(object, options = {}) {
             super(object, options);
             this.documents = object.documents;
         }
 
         get title() {
-            return `${game.i18n.localize("OWNERSHIP.Title")}: Multiple Documents`;
+            return game.i18n.format("OWNERSHIP.Title", { object: "Multiple Documents"});
         }
 
         getData(options) {
@@ -45,14 +51,13 @@ export const WithOwnershipConfig = (ConfigClass) => {
             };
         }
 
-        async _updateObject(event, formData) {
-            event.preventDefault();
-            if (!game.user.isGM) throw new Error("You do not have the ability to configure permissions.");
+        static async onSubmitForm(_event, _form, { object }) {
+             if (!game.user.isGM) throw new Error("You do not have the ability to configure permissions.");
 
             const metaLevels = CONST.DOCUMENT_META_OWNERSHIP_LEVELS;
             const omit = metaLevels.NOCHANGE;
             const ownershipLevels = {};
-            for (let [user, level] of Object.entries(formData)) {
+            for (let [user, level] of Object.entries(object)) {
                 if (level === omit) {
                     delete ownershipLevels[user];
                     continue;
@@ -70,6 +75,8 @@ export const WithOwnershipConfig = (ConfigClass) => {
                 let data = { _id: d.id, ownership };
                 return data;
             });
+
+            MultipleDocumentSelection.clearAllTabs();
 
             return cls.updateDocuments(updates, { diff: false, recursive: false, noHook: true });
         }

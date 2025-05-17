@@ -22,17 +22,23 @@
 
 .sidebar-tab.multiple-select .directory-list .directory-item.document.selected,
 .sidebar-tab.multiple-select .directory-list .directory-item .sound.selected,
+.sidebar-tab.multiple-select .directory-list .directory-item.entry.selected,
 .sidebar-tab .compendium.multiple-select .directory-list .directory-item.document.selected,
-.sidebar-tab .compendium.multiple-select .directory-list .directory-item .sound.selected {
+.sidebar-tab .compendium.multiple-select .directory-list .directory-item .sound.selected,
+.sidebar-tab .compendium.multiple-select .directory-list .directory-item .entry.selected {
     background-color: #ff6400 !important;
 }
 
 .sidebar-tab.multiple-select .directory-list .directory-item.scene.selected,
-.sidebar-tab .compendium.multiple-select .directory-list .directory-item.scene.selected {
+.sidebar-tab.multiple-select .directory-list .directory-item.compendium.entry.selected,
+.sidebar-tab .compendium.multiple-select .directory-list .directory-item.scene.selected,
+.sidebar-tab .compendium.multiple-select .directory-list .directory-item.compendium.entry.selected {
     color: #ff6400;
 }
 .sidebar-tab.multiple-select .directory-list .directory-item.scene.selected:after,
-.sidebar-tab .compendium.multiple-select .directory-list .directory-item.scene.selected:after {
+.sidebar-tab.multiple-select .directory-list .directory-item.compendium.entry.selected:after,
+.sidebar-tab .compendium.multiple-select .directory-list .directory-item.scene.selected:after,
+.sidebar-tab .compendium.multiple-select .directory-list .directory-item.compendium.entry.selected:after {
     content: ' ';
     position: absolute;
     top: 0px;

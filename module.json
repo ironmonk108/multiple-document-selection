@@ -1,13 +1,13 @@
 {
   "title": "Multiple Document Selection",
   "description": "Ever wanted to select multiple items in the sidebar directory and move or delete them?",
-  "version": "12.01",
+  "version": "13.01",
   "authors": [
     {
       "name": "IronMonk",
-      "discord": "ironmonk88#4075",
+      "discord": "ironmonk108",
 	  "flags": {
-		  "github": "ironmonk88",
+		  "github": "ironmonk108",
 		  "patreon": "ironmonk",
 		  "ko-fi": "ironmonk88"
 	  }
@@ -27,22 +27,22 @@
   "styles": [
     "css/multiple-document-selection.css"
   ],
-  "url": "https://github.com/ironmonk88/multiple-document-selection",
-  "download": "https://github.com/ironmonk88/multiple-document-selection/archive/12.01.zip",
-  "manifest": "https://github.com/ironmonk88/multiple-document-selection/releases/latest/download/module.json",
-  "bugs": "https://github.com/ironmonk88/multiple-document-selection/issues",
-  "allowBugReporter": true,
+  "url": "https://github.com/ironmonk108/multiple-document-selection",
+  "download": "https://github.com/ironmonk108/multiple-document-selection/archive/13.01.zip",
+  "manifest": "https://github.com/ironmonk108/multiple-document-selection/releases/latest/download/module.json",
+  "bugs": "https://github.com/ironmonk108/multiple-document-selection/issues",
   "id": "multiple-document-selection",
   "compatibility": {
-    "minimum": "12",
-    "verified": "12"
+    "minimum": "13",
+    "verified": "13"
   },
   "name": "multiple-document-selection",
-  "minimumCoreVersion": "12",
-  "compatibleCoreVersion": "12",
+  "minimumCoreVersion": "13",
+  "compatibleCoreVersion": "13",
   "flags": {
 		"fvttdevleague": {
 			"package-jam": 2022
-		}
-	}
+		},
+		"allowBugReporter": true
+	},
 }

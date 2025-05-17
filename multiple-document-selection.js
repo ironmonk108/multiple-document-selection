@@ -39,12 +39,15 @@ export class MultipleDocumentSelection {
     static app = null;
     static compendiums = [];
 
+    static uiTabs = [];
+
     static async init() {
         log("initializing");
 
+
         if (game.modules.get("lib-wrapper")?.active) {
-            libWrapper.ignore_conflicts("multiple-document-selection", "monks-scene-navigation", "SceneDirectory.prototype._onClickEntryName");
-            libWrapper.ignore_conflicts("multiple-document-selection", "monks-common-display", "ActorDirectory.prototype._onClickEntryName");
+            libWrapper.ignore_conflicts("multiple-document-selection", "monks-scene-navigation", "foundry.applications.sidebar.tabs.SceneDirectory.prototype._onClickEntry");
+            libWrapper.ignore_conflicts("multiple-document-selection", "monks-common-display", "foundry.applications.sidebar.tabs.ActorDirectory.prototype._onClickEntry");
         }
 
         game.MultipleDocumentSelection = MultipleDocumentSelection;
@@ -59,24 +62,25 @@ export class MultipleDocumentSelection {
             if (event.ctrlKey && !this._groupSelect) {
                 delete this._startPointerDown;
                 this._groupSelect = new Set();
-                if (this instanceof Compendium) {
+                if (this instanceof foundry.applications.sidebar.tabs.CompendiumDirectory) {
                     MultipleDocumentSelection.compendiums.push(this);
                 }
                 $(this.popOut ? $('.sidebar-tab,.compendium.directory', this.element) : this.element).addClass("multiple-select");
+                this._multipleSelect = true;
             }
 
             if (this._groupSelect || this._startPointerDown) {
                 event.preventDefault();
-                const documentId = event.currentTarget.closest(".document").dataset.documentId;
+                const entryId = this instanceof foundry.applications.sidebar.tabs.CompendiumDirectory ? event.target.closest(".entry").dataset.pack : event.target.closest(".document").dataset.entryId;
 
-                if (this._groupSelect.has(documentId)) {
+                if (this._groupSelect.has(entryId)) {
                     //remove the document
-                    MultipleDocumentSelection.removeDocument(this, documentId);
+                    MultipleDocumentSelection.removeDocument(this, entryId);
                 } else {
                     //add the document
                     if (event.shiftKey && MultipleDocumentSelection._lastId) {
-                        let elem1 = $(`.document[data-document-id="${documentId}"]`, this.element);
-                        let elem2 = $(`.document[data-document-id="${MultipleDocumentSelection._lastId}"]`, elem1.parent());
+                        let elem1 = $(`.document[data-entry-id="${entryId}"],.entry[data-pack="${entryId}"]`, this.element);
+                        let elem2 = $(`.document[data-entry-id="${MultipleDocumentSelection._lastId}"],.entry[data-pack="${MultipleDocumentSelection._lastId}"]`, elem1.parent());
 
                         if (elem2.length) {
                             if (elem2.index() < elem1.index()) {
@@ -87,52 +91,61 @@ export class MultipleDocumentSelection {
                             let elements = elem1.nextUntil(elem2, 'li');
 
                             for (let elem of elements) {
-                                MultipleDocumentSelection.addDocument(this, elem.dataset.documentId);
+                                MultipleDocumentSelection.addDocument(this, elem.dataset.entryId);
                             }
                         }
 
                     }
-                    MultipleDocumentSelection.addDocument(this, documentId);
+                    MultipleDocumentSelection.addDocument(this, entryId);
                 }
             } else
                 return wrapped(...args);
         }
 
         if (game.modules.get("lib-wrapper")?.active) {
-            libWrapper.register("multiple-document-selection", "ActorDirectory.prototype._onClickEntryName", clickEntryName, "MIXED");
-            libWrapper.register("multiple-document-selection", "CardsDirectory.prototype._onClickEntryName", clickEntryName, "MIXED");
-            libWrapper.register("multiple-document-selection", "ItemDirectory.prototype._onClickEntryName", clickEntryName, "MIXED");
-            libWrapper.register("multiple-document-selection", "JournalDirectory.prototype._onClickEntryName", clickEntryName, "MIXED");
-            libWrapper.register("multiple-document-selection", "SceneDirectory.prototype._onClickEntryName", clickEntryName, "MIXED");
-            libWrapper.register("multiple-document-selection", "RollTableDirectory.prototype._onClickEntryName", clickEntryName, "MIXED");
-            libWrapper.register("multiple-document-selection", "MacroDirectory.prototype._onClickEntryName", clickEntryName, "MIXED");
-            libWrapper.register("multiple-document-selection", "Compendium.prototype._onClickEntryName", clickEntryName, "MIXED");
+            libWrapper.register("multiple-document-selection", "foundry.applications.sidebar.tabs.ActorDirectory.prototype._onClickEntry", clickEntryName, "MIXED");
+            libWrapper.register("multiple-document-selection", "foundry.applications.sidebar.tabs.CardsDirectory.prototype._onClickEntry", clickEntryName, "MIXED");
+            libWrapper.register("multiple-document-selection", "foundry.applications.sidebar.tabs.ItemDirectory.prototype._onClickEntry", clickEntryName, "MIXED");
+            libWrapper.register("multiple-document-selection", "foundry.applications.sidebar.tabs.JournalDirectory.prototype._onClickEntry", clickEntryName, "MIXED");
+            libWrapper.register("multiple-document-selection", "foundry.applications.sidebar.tabs.SceneDirectory.prototype._onClickEntry", clickEntryName, "MIXED");
+            libWrapper.register("multiple-document-selection", "foundry.applications.sidebar.tabs.RollTableDirectory.prototype._onClickEntry", clickEntryName, "MIXED");
+            libWrapper.register("multiple-document-selection", "foundry.applications.sidebar.tabs.MacroDirectory.prototype._onClickEntry", clickEntryName, "MIXED");
+            libWrapper.register("multiple-document-selection", "foundry.applications.sidebar.tabs.CompendiumDirectory.prototype._onClickEntry", clickEntryName, "MIXED");
         } else {
-            let directories = [ActorDirectory, CardsDirectory, ItemDirectory, JournalDirectory, SceneDirectory, RollTableDirectory, MacroDirectory, Compendium];
+            let directories = [
+                foundry.applications.sidebar.tabs.ActorDirectory,
+                foundry.applications.sidebar.tabs.CardsDirectory,
+                foundry.applications.sidebar.tabs.ItemDirectory,
+                foundry.applications.sidebar.tabs.JournalDirectory,
+                foundry.applications.sidebar.tabs.SceneDirectory,
+                foundry.applications.sidebar.tabs.RollTableDirectory,
+                foundry.applications.sidebar.tabs.MacroDirectory,
+                foundry.applications.sidebar.tabs.CompendiumDirectory];
             for (let dir of directories) {
-                const oldClickEntryName = dir.prototype._onClickEntryName;
-                dir.prototype._onClickEntryName = function (event) {
+                const oldClickEntryName = dir.prototype._onClickEntry;
+                dir.prototype._onClickEntry = function (event) {
                     return clickEntryName.call(this, oldClickEntryName.bind(this), ...arguments);
                 }
             }
         }
         for (let dir of additionalDirectories) {
-            const oldClickEntryName = dir.prototype._onClickEntryName;
-            dir.prototype._onClickEntryName = function (event) {
+            const oldClickEntryName = dir.prototype._onClickEntry;
+            dir.prototype._onClickEntry = function (event) {
                 return clickEntryName.call(this, oldClickEntryName.bind(this), ...arguments);
             }
         }
         
 
         let onDropFolder = async function (wrapped, ...args) {
-            const data = TextEditor.getDragEventData(event);
+            var [event] = args;
+            const data = foundry.applications.ux.TextEditor.getDragEventData(event);
 
             if (this._groupSelect) {
                 let event = args[0];
                 event.preventDefault();
 
-                const cls = this.constructor.documentName;
-                const data = TextEditor.getDragEventData(event);
+                const cls = this.documentName;
+                const data = foundry.applications.ux.TextEditor.getDragEventData(event);
                 if (!data.type) return;
                 const target = event.target.closest(".directory-item") || null;
 
@@ -155,7 +168,7 @@ export class MultipleDocumentSelection {
 
                             await wrapped(dragEvent);
                         } else {
-                            let document = this.constructor.collection.get(id);
+                            let document = this.collection.get(id);
                             let docData = foundry.utils.mergeObject(data, { uuid: document.uuid });
                             if (docData.type == "Tile") delete docData.data;
                             await this._handleDroppedEntry(target, docData);
@@ -182,17 +195,26 @@ export class MultipleDocumentSelection {
         }
 
         if (game.modules.get("lib-wrapper")?.active) {
-            libWrapper.register("multiple-document-selection", "ActorDirectory.prototype._onDrop", onDropFolder, "MIXED");
-            libWrapper.register("multiple-document-selection", "CardsDirectory.prototype._onDrop", onDropFolder, "MIXED");
-            libWrapper.register("multiple-document-selection", "ItemDirectory.prototype._onDrop", onDropFolder, "MIXED");
-            libWrapper.register("multiple-document-selection", "JournalDirectory.prototype._onDrop", onDropFolder, "MIXED");
-            libWrapper.register("multiple-document-selection", "PlaylistDirectory.prototype._onDrop", onDropFolder, "MIXED");
-            libWrapper.register("multiple-document-selection", "SceneDirectory.prototype._onDrop", onDropFolder, "MIXED");
-            libWrapper.register("multiple-document-selection", "RollTableDirectory.prototype._onDrop", onDropFolder, "MIXED");
-            libWrapper.register("multiple-document-selection", "MacroDirectory.prototype._onDrop", onDropFolder, "MIXED");
-            libWrapper.register("multiple-document-selection", "Compendium.prototype._onDrop", onDropFolder, "MIXED");
+            libWrapper.register("multiple-document-selection", "foundry.applications.sidebar.tabs.ActorDirectory.prototype._onDrop", onDropFolder, "MIXED");
+            libWrapper.register("multiple-document-selection", "foundry.applications.sidebar.tabs.CardsDirectory.prototype._onDrop", onDropFolder, "MIXED");
+            libWrapper.register("multiple-document-selection", "foundry.applications.sidebar.tabs.ItemDirectory.prototype._onDrop", onDropFolder, "MIXED");
+            libWrapper.register("multiple-document-selection", "foundry.applications.sidebar.tabs.JournalDirectory.prototype._onDrop", onDropFolder, "MIXED");
+            libWrapper.register("multiple-document-selection", "foundry.applications.sidebar.tabs.PlaylistDirectory.prototype._onDrop", onDropFolder, "MIXED");
+            libWrapper.register("multiple-document-selection", "foundry.applications.sidebar.tabs.SceneDirectory.prototype._onDrop", onDropFolder, "MIXED");
+            libWrapper.register("multiple-document-selection", "foundry.applications.sidebar.tabs.RollTableDirectory.prototype._onDrop", onDropFolder, "MIXED");
+            libWrapper.register("multiple-document-selection", "foundry.applications.sidebar.tabs.MacroDirectory.prototype._onDrop", onDropFolder, "MIXED");
+            libWrapper.register("multiple-document-selection", "foundry.applications.sidebar.tabs.CompendiumDirectory.prototype._onDrop", onDropFolder, "MIXED");
         } else {
-            for (let dir of [ActorDirectory, CardsDirectory, ItemDirectory, JournalDirectory, PlaylistDirectory, SceneDirectory, RollTableDirectory, MacroDirectory, Compendium]) {
+            for (let dir of [
+                foundry.applications.sidebar.tabs.ActorDirectory,
+                foundry.applications.sidebar.tabs.CardsDirectory,
+                foundry.applications.sidebar.tabs.ItemDirectory,
+                foundry.applications.sidebar.tabs.JournalDirectory,
+                foundry.applications.sidebar.tabs.PlaylistDirectory,
+                foundry.applications.sidebar.tabs.SceneDirectory,
+                foundry.applications.sidebar.tabs.RollTableDirectory,
+                foundry.applications.sidebar.tabs.MacroDirectory,
+                foundry.applications.sidebar.tabs.CompendiumDirectory]) {
                 const oldOnDrop = dir.prototype._onDrop;
                 dir.prototype._onDrop = function (event) {
                     return onDropFolder.call(this, oldOnDrop.bind(this), ...arguments);
@@ -240,17 +262,26 @@ export class MultipleDocumentSelection {
         }
 
         if (game.modules.get("lib-wrapper")?.active) {
-            libWrapper.register("multiple-document-selection", "ActorDirectory.prototype._onDragStart", onDragStart, "WRAPPER");
-            libWrapper.register("multiple-document-selection", "CardsDirectory.prototype._onDragStart", onDragStart, "WRAPPER");
-            libWrapper.register("multiple-document-selection", "ItemDirectory.prototype._onDragStart", onDragStart, "WRAPPER");
-            libWrapper.register("multiple-document-selection", "JournalDirectory.prototype._onDragStart", onDragStart, "WRAPPER");
-            libWrapper.register("multiple-document-selection", "PlaylistDirectory.prototype._onDragStart", onDragStart, "WRAPPER");
-            libWrapper.register("multiple-document-selection", "SceneDirectory.prototype._onDragStart", onDragStart, "WRAPPER");
-            libWrapper.register("multiple-document-selection", "RollTableDirectory.prototype._onDragStart", onDragStart, "WRAPPER");
-            libWrapper.register("multiple-document-selection", "MacroDirectory.prototype._onDragStart", onDragStart, "WRAPPER");
-            libWrapper.register("multiple-document-selection", "Compendium.prototype._onDragStart", onDragStart, "WRAPPER");
+            libWrapper.register("multiple-document-selection", "foundry.applications.sidebar.tabs.ActorDirectory.prototype._onDragStart", onDragStart, "WRAPPER");
+            libWrapper.register("multiple-document-selection", "foundry.applications.sidebar.tabs.CardsDirectory.prototype._onDragStart", onDragStart, "WRAPPER");
+            libWrapper.register("multiple-document-selection", "foundry.applications.sidebar.tabs.ItemDirectory.prototype._onDragStart", onDragStart, "WRAPPER");
+            libWrapper.register("multiple-document-selection", "foundry.applications.sidebar.tabs.JournalDirectory.prototype._onDragStart", onDragStart, "WRAPPER");
+            libWrapper.register("multiple-document-selection", "foundry.applications.sidebar.tabs.PlaylistDirectory.prototype._onDragStart", onDragStart, "WRAPPER");
+            libWrapper.register("multiple-document-selection", "foundry.applications.sidebar.tabs.SceneDirectory.prototype._onDragStart", onDragStart, "WRAPPER");
+            libWrapper.register("multiple-document-selection", "foundry.applications.sidebar.tabs.RollTableDirectory.prototype._onDragStart", onDragStart, "WRAPPER");
+            libWrapper.register("multiple-document-selection", "foundry.applications.sidebar.tabs.MacroDirectory.prototype._onDragStart", onDragStart, "WRAPPER");
+            libWrapper.register("multiple-document-selection", "foundry.applications.sidebar.tabs.CompendiumDirectory.prototype._onDragStart", onDragStart, "WRAPPER");
         } else {
-            for (let dir of [ActorDirectory, CardsDirectory, ItemDirectory, JournalDirectory, PlaylistDirectory, SceneDirectory, RollTableDirectory, MacroDirectory, Compendium]) {
+            for (let dir of [
+                foundry.applications.sidebar.tabs.ActorDirectory,
+                foundry.applications.sidebar.tabs.CardsDirectory,
+                foundry.applications.sidebar.tabs.ItemDirectory,
+                foundry.applications.sidebar.tabs.JournalDirectory,
+                foundry.applications.sidebar.tabs.PlaylistDirectory,
+                foundry.applications.sidebar.tabs.SceneDirectory,
+                foundry.applications.sidebar.tabs.RollTableDirectory,
+                foundry.applications.sidebar.tabs.MacroDirectory,
+                foundry.applications.sidebar.tabs.CompendiumDirectory]) {
                 const oldDragStart = dir.prototype._onDragStart;
                 dir.prototype._onDragStart = function (event) {
                     return onDragStart.call(this, oldDragStart.bind(this), ...arguments);
@@ -271,7 +302,7 @@ export class MultipleDocumentSelection {
             if (data instanceof Array) {
                 let items = [];
                 for (let obj of data) {
-                    let document = this.collection.fromCompendium(obj, { addFlags: false });
+                    let document = this.collection.fromCompendium(obj);
                     items.push(document);
                 }
                 if (items.length)
@@ -298,17 +329,17 @@ export class MultipleDocumentSelection {
             }
         }
 
-        for (let tabName of ["ActorDirectory", "CardsDirectory", "ItemDirectory", "JournalDirectory", "RollTableDirectory", "MacroDirectory"].concat(additionalDirectories.map(d => d.name))) {
-            Hooks.on(`get${tabName}EntryContext`, (html, menuItems, tab) => {
+        for (let tabName of ["Actor", "Cards", "Item", "JournalEntry", "RollTable", "Macro"].concat(additionalDirectories.map(d => d.name))) {
+            Hooks.on(`get${tabName}ContextOptions`, (handler, menuItems) => {
                 window.setTimeout(() => {
                     // make sure we're the last one to activate
                     for (let menu of menuItems) {
                         if (!menu.multiple) {
                             let oldCondition = menu.condition;
                             menu.condition = function (li) {
-                                if (html.hasClass("multiple-select"))
+                                if (handler._multipleSelect === true)
                                     return false;
-                                return oldCondition ? oldCondition(li) : true;
+                                return oldCondition !== null ? (oldCondition instanceof Function ? oldCondition(li) : oldCondition) : true;
                             }
                         }
                     }
@@ -320,11 +351,11 @@ export class MultipleDocumentSelection {
                         name: "Delete Multiple",
                         multiple: true,
                         condition: (li) => {
-                            return game.user.isGM && html.hasClass("multiple-select") && li.hasClass('selected');
+                            return game.user.isGM && handler._multipleSelect === true && $(li).hasClass('selected');
                         },
                         callback: (li) => {
-                            //let tab = Object.values(ui.sidebar.tabs).find(t => t.constructor.name == tabName);
-                            MultipleDocumentSelection.deleteDialog(tab);
+                            //let tab = MultipleDocumentSelection.uiTabs.find(t => t.constructor.name == tabName);
+                            MultipleDocumentSelection.deleteDialog(handler);
                         }
                     },
                     {
@@ -332,11 +363,11 @@ export class MultipleDocumentSelection {
                         name: "Duplicate Multiple",
                         multiple: true,
                         condition: (li) => {
-                            return game.user.isGM && html.hasClass("multiple-select") && li.hasClass('selected');
+                            return game.user.isGM && handler._multipleSelect === true && $(li).hasClass('selected');
                         },
                         callback: (li) => {
-                            //let tab = Object.values(ui.sidebar.tabs).find(t => t.constructor.name == tabName);
-                            MultipleDocumentSelection.duplicateDocuments(tab);
+                            //let tab = MultipleDocumentSelection.uiTabs.find(t => t.constructor.name == tabName);
+                            MultipleDocumentSelection.duplicateDocuments(handler);
                         }
                     },
                     {
@@ -344,12 +375,13 @@ export class MultipleDocumentSelection {
                         name: "Configure Ownership",
                         multiple: true,
                         condition: (li) => {
-                            let entry = [...tab.collection][0];
-                            return game.user.isGM && html.hasClass("multiple-select") && li.hasClass('selected') && entry?.ownership;
+                            let entryId = li.dataset.entryId;
+                            let entry = handler.collection.get(entryId);
+                            return game.user.isGM && handler._multipleSelect === true && $(li).hasClass('selected') && entry?.ownership;
                         },
                         callback: (li) => {
-                            //let tab = Object.values(ui.sidebar.tabs).find(t => t.constructor.name == tabName);
-                            MultipleDocumentSelection.ownershipDialog(tab, li);
+                            //let tab = MultipleDocumentSelection.uiTabs.find(t => t.constructor.name == tabName);
+                            MultipleDocumentSelection.ownershipDialog(handler, li);
                         }
                     },
                     {
@@ -357,27 +389,28 @@ export class MultipleDocumentSelection {
                         name: "Export Data",
                         multiple: true,
                         condition: (li) => {
-                            return html.hasClass("multiple-select") && li.hasClass('selected') && game.system.id !== "pf2e";
+                            return handler._multipleSelect === true && $(li).hasClass('selected') && game.system.id !== "pf2e";
                         },
                         callback: (li) => {
-                            //let tab = Object.values(ui.sidebar.tabs).find(t => t.constructor.name == tabName);
-                            MultipleDocumentSelection.exportDocuments(tab);
+                            //let tab = MultipleDocumentSelection.uiTabs.find(t => t.constructor.name == tabName);
+                            MultipleDocumentSelection.exportDocuments(handler);
                         }
                     }
                 );
+                return menuItems;
             })
         }
 
-        Hooks.on(`getSceneDirectoryEntryContext`, (html, menuItems, tab) => {
+        Hooks.on(`getSceneContextOptions`, (handler, menuItems) => {
             window.setTimeout(() => {
                 // make sure we're the last one to activate
                 for (let menu of menuItems) {
                     if (!menu.multiple) {
                         let oldCondition = menu.condition;
                         menu.condition = function (li) {
-                            if (html.hasClass("multiple-select"))
+                            if (handler._multipleSelect === true)
                                 return false;
-                            return oldCondition ? oldCondition(li) : true;
+                            return oldCondition !== null ? (oldCondition instanceof Function ? oldCondition(li) : oldCondition) : true;
                         }
                     }
                 }
@@ -389,11 +422,11 @@ export class MultipleDocumentSelection {
                     name: "Delete Multiple",
                     multiple: true,
                     condition: (li) => {
-                        return game.user.isGM && html.hasClass("multiple-select") && li.hasClass('selected');
+                        return game.user.isGM && handler._multipleSelect === true && $(li).hasClass('selected');
                     },
                     callback: (li) => {
-                        //let tab = Object.values(ui.sidebar.tabs).find(t => t.constructor.name == tabName);
-                        MultipleDocumentSelection.deleteDialog(tab);
+                        //let tab = MultipleDocumentSelection.uiTabs.find(t => t.constructor.name == tabName);
+                        MultipleDocumentSelection.deleteDialog(handler);
                     }
                 },
                 {
@@ -401,11 +434,11 @@ export class MultipleDocumentSelection {
                     name: "Duplicate Multiple",
                     multiple: true,
                     condition: (li) => {
-                        return game.user.isGM && html.hasClass("multiple-select") && li.hasClass('selected');
+                        return game.user.isGM && handler._multipleSelect === true && $(li).hasClass('selected');
                     },
                     callback: (li) => {
-                        //let tab = Object.values(ui.sidebar.tabs).find(t => t.constructor.name == tabName);
-                        MultipleDocumentSelection.duplicateDocuments(tab);
+                        //let tab = MultipleDocumentSelection.uiTabs.find(t => t.constructor.name == tabName);
+                        MultipleDocumentSelection.duplicateDocuments(handler);
                     }
                 },
                 {
@@ -413,11 +446,11 @@ export class MultipleDocumentSelection {
                     name: "Toggle Navigation Multiple",
                     multiple: true,
                     condition: (li) => {
-                        return game.user.isGM && html.hasClass("multiple-select") && li.hasClass('selected');
+                        return game.user.isGM && handler._multipleSelect === true && $(li).hasClass('selected');
                     },
                     callback: (li) => {
-                        //let tab = Object.values(ui.sidebar.tabs).find(t => t.constructor.name == tabName);
-                        MultipleDocumentSelection.toggleNavigation(tab);
+                        //let tab = MultipleDocumentSelection.uiTabs.find(t => t.constructor.name == tabName);
+                        MultipleDocumentSelection.toggleNavigation(handler);
                     }
                 },
                 {
@@ -425,12 +458,13 @@ export class MultipleDocumentSelection {
                     name: "Configure Ownership",
                     multiple: true,
                     condition: (li) => {
-                        let entry = [...tab.collection][0];
-                        return game.user.isGM && html.hasClass("multiple-select") && li.hasClass('selected') && entry?.ownership;
+                        let entryId = li.dataset.entryId;
+                        let entry = handler.collection.get(entryId);
+                        return game.user.isGM && handler._multipleSelect === true && $(li).hasClass('selected') && entry?.ownership;
                     },
                     callback: (li) => {
-                        //let tab = Object.values(ui.sidebar.tabs).find(t => t.constructor.name == tabName);
-                        MultipleDocumentSelection.ownershipDialog(tab, li);
+                        //let tab = MultipleDocumentSelection.uiTabs.find(t => t.constructor.name == tabName);
+                        MultipleDocumentSelection.ownershipDialog(handler, li);
                     }
                 },
                 {
@@ -438,26 +472,28 @@ export class MultipleDocumentSelection {
                     name: "Export Data",
                     multiple: true,
                     condition: (li) => {
-                        return html.hasClass("multiple-select") && li.hasClass('selected') && game.system.id !== "pf2e";
+                        return handler._multipleSelect === true && $(li).hasClass('selected') && game.system.id !== "pf2e";
                     },
                     callback: (li) => {
-                        //let tab = Object.values(ui.sidebar.tabs).find(t => t.constructor.name == tabName);
-                        MultipleDocumentSelection.exportDocuments(tab);
+                        //let tab = MultipleDocumentSelection.uiTabs.find(t => t.constructor.name == tabName);
+                        MultipleDocumentSelection.exportDocuments(handler);
                     }
                 }
             );
+
+            return menuItems;
         })
 
-        Hooks.on("getCompendiumEntryContext", (html, menuItems) => {
+        Hooks.on("getCompendiumContextOptions", (handler, menuItems) => {
             window.setTimeout(() => {
                 // make sure we're the last one to activate
                 for (let menu of menuItems) {
                     if (!menu.multiple) {
                         let oldCondition = menu.condition;
                         menu.condition = function (li) {
-                            if (html.hasClass("multiple-select"))
+                            if (handler._multipleSelect === true)
                                 return false;
-                            return oldCondition ? oldCondition(li) : true;
+                            return oldCondition !== null ? (oldCondition instanceof Function ? oldCondition(li) : oldCondition) : true;
                         }
                     }
                 }
@@ -469,7 +505,7 @@ export class MultipleDocumentSelection {
                     name: "Delete Multiple",
                     multiple: true,
                     condition: (li) => {
-                        return game.user.isGM && html.hasClass("multiple-select") && li.hasClass('selected');
+                        return game.user.isGM && handler._multipleSelect === true && $(li).hasClass('selected');
                     },
                     callback: (li) => {
                         let compendium = $(li).closest(".Compendium-sidebar");
@@ -479,18 +515,19 @@ export class MultipleDocumentSelection {
                     }
                 }
             );
+            return menuItems;
         })
 
-        Hooks.on(`getPlaylistDirectorySoundContext`, (html, menuItems) => {
+        Hooks.on(`getPlaylistSoundContextOptions`, (handler, menuItems) => {
             window.setTimeout(() => {
                 // make sure we're the last one to activate
                 for (let menu of menuItems) {
                     if (!menu.multiple) {
                         let oldCondition = menu.condition;
                         menu.condition = function (li) {
-                            if (html.hasClass("multiple-select"))
+                            if (handler._multipleSelect === true)
                                 return false;
-                            return oldCondition ? oldCondition(li) : true;
+                            return oldCondition !== null ? (oldCondition instanceof Function ? oldCondition(li) : oldCondition) : true;
                         }
                     }
                 }
@@ -502,10 +539,10 @@ export class MultipleDocumentSelection {
                     name: "Delete Multiple",
                     multiple: true,
                     condition: (li) => {
-                        return game.user.isGM && html.hasClass("multiple-select") && li.hasClass('selected');
+                        return game.user.isGM && handler._multipleSelect === true && $(li).hasClass('selected');
                     },
                     callback: (li) => {
-                        MultipleDocumentSelection.deleteDialog(ui.sidebar.tabs.playlists);
+                        MultipleDocumentSelection.deleteDialog(ui.playlists);
                     }
                 },
                 {
@@ -513,27 +550,28 @@ export class MultipleDocumentSelection {
                     name: "Preload Sounds",
                     multiple: true,
                     condition: (li) => {
-                        return game.user.isGM && html.hasClass("multiple-select") && li.hasClass('selected');
+                        return game.user.isGM && handler._multipleSelect === true && $(li).hasClass('selected');
                     },
                     callback: (li) => {
-                        MultipleDocumentSelection.preloadSounds(ui.sidebar.tabs.playlists);
+                        MultipleDocumentSelection.preloadSounds(ui.playlists);
                     }
                 }
             );
+            return menuItems;
         });
 
-        patchFunc("ContextMenu.prototype.constructor.create", function (app, html, selector, menuItems, { hookName = "EntryContext", ...options } = {}) {
+        patchFunc("foundry.applications.ux.ContextMenu.prototype.constructor.create", function (app, html, selector, menuItems, { hookName = "EntryContext", ...options } = {}) {
             for (const cls of app.constructor._getInheritanceChain()) {
                 Hooks.call(`get${cls.name}${hookName}`, html, menuItems, app);
             }
 
-            if (menuItems) return new ContextMenu(html, selector, menuItems, options);
+            if (menuItems) return new foundry.applications.ux.ContextMenu(html, selector, menuItems, options);
         }, "OVERRIDE");
     }
 
     static selectPlaylistSound(event) {
-        const soundId = event.currentTarget.dataset.soundId;
-        let tab = ui.sidebar.tabs.playlists;
+        const soundId = event.target.closest(".sound").dataset.soundId;
+        let tab = ui.playlists;
 
         if (tab._groupSelect || tab._startPointerDown) {
             if (tab._groupSelect.has(soundId)) {
@@ -542,7 +580,7 @@ export class MultipleDocumentSelection {
             } else {
                 //add the document
                 if (event.shiftKey && MultipleDocumentSelection._lastId) {
-                    let elem1 = $(`.sound[data-sound-id="${soundId}"]`, ui.sidebar.tabs.playlists.element);
+                    let elem1 = $(`.sound[data-sound-id="${soundId}"]`, ui.playlists.element);
                     let elem2 = $(`.sound[data-sound-id="${MultipleDocumentSelection._lastId}"]`, elem1.parent());
 
                     if (elem2.length) {
@@ -569,10 +607,12 @@ export class MultipleDocumentSelection {
 
     static async ready() {
         $('body').on("keyup", MultipleDocumentSelection.keyup.bind());
+
+        MultipleDocumentSelection.uiTabs = [ui.actors, ui.cards, ui.items, ui.journal, ui.scenes, ui.tables, ui.macros, ui.playlists, ui.compendium];
     }
 
     static onMouseDown(event) {
-        let id = (this instanceof PlaylistDirectory ? event.currentTarget.closest(".sound").dataset.soundId : event.currentTarget.closest(".document").dataset.documentId);
+        let id = (this instanceof foundry.applications.sidebar.tabs.PlaylistDirectory ? event.target.closest(".sound").dataset.soundId : this instanceof foundry.applications.sidebar.tabs.CompendiumDirectory ? event.target.closest(".entry").dataset.pack : event.target.closest(".document").dataset.entryId);
         if (!this._groupSelect) {
             let that = this;
             if ($(event.originalEvent.target).hasClass("global-volume-slider"))
@@ -581,28 +621,30 @@ export class MultipleDocumentSelection {
             if (event.ctrlKey) {
                 delete this._startPointerDown;
                 this._groupSelect = new Set();
-                if (this instanceof Compendium) {
+                if (this instanceof foundry.applications.sidebar.tabs.CompendiumDirectory) {
                     MultipleDocumentSelection.compendiums.push(this);
                 }
                 $(this.popOut ? $('.sidebar-tab,.compendium.directory', this.element) : this.element).addClass("multiple-select");
+                this._multipleSelect = true;
             } else {
                 this._startPointerDown = window.setTimeout(() => {
                     if (that._startPointerDown) {
                         // Start thes election process
                         delete that._startPointerDown;
                         that._groupSelect = new Set();
-                        if (that instanceof Compendium) {
+                        if (that instanceof foundry.applications.sidebar.tabs.CompendiumDirectory) {
                             MultipleDocumentSelection.compendiums.push(that);
                         }
                         $(that.popOut ? $('.sidebar-tab,.compendium.directory', that.element) : that.element).addClass("multiple-select");
+                        that._multipleSelect = true;
                         //Add the class, but don't add the document as the click document will handle that, but the user needs a visual queue
-                        $(`.document[data-document-id="${id}"],.sound[data-sound-id="${id}"]`, that.element).addClass("selected");
+                        $(`.document[data-entry-id="${id}"],.sound[data-sound-id="${id}"],.entry[data-pack="${id}"]`, that.element).addClass("selected");
                     }
                 }, setting("long-press") * 1000);
             }
         } else {
             // let's fake the item being selected
-            $(`.document[data-document-id="${id}"],.sound[data-sound-id="${id}"]`, this.element).addClass("selected");
+            $(`.document[data-entry-id="${id}"],.sound[data-sound-id="${id}"],.entry[data-pack="${id}"]`, this.element).addClass("selected");
         }
     }
 
@@ -617,7 +659,7 @@ export class MultipleDocumentSelection {
 
     static onContext(event) {
         if (this._groupSelect) {
-            let id = (this instanceof PlaylistDirectory ? event.currentTarget.closest(".sound").dataset.soundId : event.currentTarget.closest(".document").dataset.documentId);
+            let id = (this instanceof foundry.applications.sidebar.tabs.PlaylistDirectory ? event.target.closest(".sound").dataset.soundId : this instanceof foundry.applications.sidebar.tabs.CompendiumDirectory ? event.target.closest(".entry").dataset.pack : event.target.closest(".document").dataset.entryId);
             if (this._groupSelect.has(id)) {
                 // carry on but provide a slightly modified context menu
             } else {
@@ -625,7 +667,7 @@ export class MultipleDocumentSelection {
                 MultipleDocumentSelection.clearTab(this);
                 let closeId = window.setInterval(() => {
                     if (ui.context) {
-                        ui.context.menu.hide();
+                        $(ui.context.element).hide();
                         ui.context.close();
                         window.clearInterval(closeId);
                     }
@@ -637,14 +679,14 @@ export class MultipleDocumentSelection {
     static addDocument(dir, id) {
         MultipleDocumentSelection._lastId = id;
         dir._groupSelect.add(id);
-        $(`.document[data-document-id="${id}"],.sound[data-sound-id="${id}"]`, dir.element).addClass("selected");
+        $(`.document[data-entry-id="${id}"],.sound[data-sound-id="${id}"],.entry[data-pack="${id}"]`, dir.element).addClass("selected");
     }
 
     static removeDocument(dir, id) {
         if (MultipleDocumentSelection._lastId == id)
             delete MultipleDocumentSelection._lastId;
         dir._groupSelect.delete(id);
-        $(`.document[data-document-id="${id}"],.sound[data-sound-id="${id}"]`, dir.element).removeClass("selected");
+        $(`.document[data-entry-id="${id}"],.sound[data-sound-id="${id}"],.entry[data-pack="${id}"]`, dir.element).removeClass("selected");
         if (dir._groupSelect.size == 0) {
             MultipleDocumentSelection.clearTab(dir);
         }
@@ -659,15 +701,16 @@ export class MultipleDocumentSelection {
                 $(".sidebar-tab,.compendium.directory", dir.element).removeClass("multiple-select");
             else
                 $(dir.element).removeClass("multiple-select");
+            dir._multipleSelect = false;
         }
         delete MultipleDocumentSelection._lastId;
-        if (dir instanceof Compendium) {
+        if (dir instanceof foundry.applications.sidebar.tabs.CompendiumDirectory) {
             MultipleDocumentSelection.compendiums.findSplice(c => c.id == dir.id);
         }
     }
 
     static clearAllTabs() {
-        for (let dir of MultipleDocumentSelection.compendiums.concat(Object.values(ui.sidebar.tabs))) {
+        for (let dir of MultipleDocumentSelection.compendiums.concat(MultipleDocumentSelection.uiTabs)) {
             MultipleDocumentSelection.clearTab(dir);
         }
     }
@@ -675,36 +718,36 @@ export class MultipleDocumentSelection {
     static deleteDialog(tab) {
         if (tab) {
             //show the delete dialog for multiple entries
-            const documentClass = (tab instanceof PlaylistDirectory ? PlaylistSound : tab.constructor.collection?.documentClass || tab.collection?.documentClass);
+            const documentClass = (tab instanceof foundry.applications.sidebar.tabs.PlaylistDirectory ? PlaylistSound : tab.collection?.documentClass);
             const type = game.i18n.localize(documentClass.metadata.label);
-            return Dialog.confirm({
+            return foundry.applications.api.DialogV2.confirm({
                 title: `${game.i18n.format("DOCUMENT.Delete", { type: `${tab._groupSelect.size} ${type}` })}`,
                 content: `<h4>${game.i18n.localize("AreYouSure")}</h4><p>${game.i18n.format("MultipleDocumentSelection.DeleteWarning", { count: tab._groupSelect.size })}</p>`,
-                yes: async () => {
-                    let ids = Array.from(tab._groupSelect).filter(id => {
-                        if (tab instanceof PlaylistDirectory)
-                            return true;
-                        if (tab instanceof Compendium)
-                            return !tab.collection.locked;
-                        let document = tab.constructor?.collection?.get(id) || tab.collection?.get(id);
-                        return document && document.canUserModify(game.user, "delete")
-                    });
-                    if (ids.length) {
-                        if (tab instanceof PlaylistDirectory) {
-                            let parents = {};
-                            for (let id of ids) {
-                                const li = $(`.sound[data-sound-id="${id}"]`, tab.element);
-                                const playlistId = li.parents(".playlist").data("document-id");
-                                if (!parents[playlistId])
-                                    parents[playlistId] = [];
-                                parents[playlistId].push(id);
-                            }
-                            for (let [playlistId, pids] of Object.entries(parents)) {
-                                const playlist = game.playlists.get(playlistId);
-                                documentClass.deleteDocuments(pids, { parent: playlist });
-                            }
-                        } else {
-                            if (tab instanceof Compendium) {
+                yes: {
+                    callback: async () => {
+                        let ids = Array.from(tab._groupSelect).filter(id => {
+                            if (tab instanceof foundry.applications.sidebar.tabs.PlaylistDirectory)
+                                return true;
+                            if (tab instanceof foundry.applications.sidebar.tabs.CompendiumDirectory)
+                                return !tab.collection.locked;
+                            let document = tab.collection?.get(id);
+                            return document && document.canUserModify(game.user, "delete")
+                        });
+                        if (ids.length) {
+                            if (tab instanceof foundry.applications.sidebar.tabs.PlaylistDirectory) {
+                                let parents = {};
+                                for (let id of ids) {
+                                    const li = $(`.sound[data-sound-id="${id}"]`, tab.element);
+                                    const playlistId = li.parents(".playlist").data("entry-id");
+                                    if (!parents[playlistId])
+                                        parents[playlistId] = [];
+                                    parents[playlistId].push(id);
+                                }
+                                for (let [playlistId, pids] of Object.entries(parents)) {
+                                    const playlist = game.playlists.get(playlistId);
+                                    documentClass.deleteDocuments(pids, { parent: playlist });
+                                }
+                            } else if (tab instanceof foundry.applications.sidebar.tabs.CompendiumDirectory) {
                                 for (let id of ids) {
                                     let document = await tab.collection.getDocument(id);
                                     await document?.delete();
@@ -712,16 +755,16 @@ export class MultipleDocumentSelection {
                             } else {
                                 documentClass.deleteDocuments(ids);
                             }
-                        }
 
-                        if (ids.length != tab._groupSelect.size) {
-                            ui.notifications.warn("Some of these documents weren't deleted because you do not have permissions to complete the request.");
-                            for (let id of ids)
-                                MultipleDocumentSelection.removeDocument(tab, id);
+                            if (ids.length != tab._groupSelect.size) {
+                                ui.notifications.warn("Some of these documents weren't deleted because you do not have permissions to complete the request.");
+                                for (let id of ids)
+                                    MultipleDocumentSelection.removeDocument(tab, id);
+                            } else
+                                MultipleDocumentSelection.clearTab(tab);
                         } else
-                            MultipleDocumentSelection.clearTab(tab);
-                    } else
-                        ui.notifications.warn("You do not have permission to delete these documents");
+                            ui.notifications.warn("You do not have permission to delete these documents");
+                    }
                 }
             });
         }
@@ -730,7 +773,7 @@ export class MultipleDocumentSelection {
     static duplicateDocuments(tab) {
         if (tab) {
             //show the delete dialog for multiple entries
-            const collection = tab.constructor.collection;
+            const collection = tab.collection;
             let items = [];
             for (let id of tab._groupSelect) {
                 let document = collection.get(id);
@@ -756,7 +799,7 @@ export class MultipleDocumentSelection {
 
     static async toggleNavigation(tab) {
         if (tab) {
-            const collection = tab.constructor.collection;
+            const collection = tab.collection;
             let items = [];
             for (let id of tab._groupSelect) {
                 let document = collection.get(id);
@@ -771,17 +814,16 @@ export class MultipleDocumentSelection {
     static ownershipDialog(tab, li) {
         if (tab) {
             //show the delete dialog for multiple entries
-            const collection = tab.constructor.collection;
-            const documentClass = collection.documentClass;
+            const collection = tab.collection;
 
             let documents = [];
             for (let id of tab._groupSelect) {
                 documents.push(collection.get(id));
             }
 
-            const configClass = WithOwnershipConfig(DocumentOwnershipConfig);
-            new configClass({ documents, apps: {}, uuid: "", testUserPermission: () => { return true; }, isOwner: true }, {
-                top: Math.min(li[0].offsetTop, window.innerHeight - 350),
+            const configClass = WithOwnershipConfig(foundry.applications.apps.DocumentOwnershipConfig);
+            new configClass({ documents, document: documents[0], apps: {}, uuid: "", testUserPermission: () => { return true; }, isOwner: true }, {
+                top: Math.min($(li)[0].offsetTop, window.innerHeight - 350),
                 left: window.innerWidth - 720
             }).render(true);
         }
@@ -789,13 +831,13 @@ export class MultipleDocumentSelection {
 
     static exportDocuments(tab) {
         if (tab) {
-            const collection = tab.constructor.collection;
+            const collection = tab.collection;
             let items = [];
             for (let id of tab._groupSelect) {
                 let document = collection.get(id);
                 if (document.isOwner) {
                     const data = document.toCompendium(null);
-                    data.flags["exportSource"] = {
+                    data._stats["exportSource"] = {
                         world: game.world.id,
                         system: game.system.id,
                         coreVersion: game.version,
@@ -806,7 +848,7 @@ export class MultipleDocumentSelection {
             }
             if (items.length) {
                 const filename = `fvtt-${collection.documentName}-multiple.json`;
-                saveDataToFile(JSON.stringify(items, null, 2), "text/json", filename);
+                foundry.utils.saveDataToFile(JSON.stringify(items, null, 2), "text/json", filename);
                 if (items.length != tab._groupSelect.size) {
                     ui.notifications.warn("Some of these documents weren't exported because you do not have permissions to complete the request.");
                 } else
@@ -832,7 +874,7 @@ export class MultipleDocumentSelection {
 
     static keyup(event) {
         if (event.keyCode == 46) {
-            let tab = ui.sidebar.tabs[ui.sidebar.activeTab];
+            let tab = ui[ui.sidebar.tabGroups.primary];
             if (tab._groupSelect) {
                 event.preventDefault();
                 event.stopPropagation();
@@ -847,7 +889,7 @@ Hooks.once('setup', MultipleDocumentSelection.setup);
 Hooks.once('ready', MultipleDocumentSelection.ready);
 
 Hooks.on("renderDocumentDirectory", (directory, html, options) => {
-    $((directory instanceof PlaylistDirectory ? '.sound' : '.document'), html)
+    $((directory instanceof foundry.applications.sidebar.tabs.PlaylistDirectory ? '.sound' : '.document'), html)
         .on("pointerdown", MultipleDocumentSelection.onMouseDown.bind(directory))
         .on("pointerup", MultipleDocumentSelection.onMouseUp.bind(directory))
         .on("contextmenu", MultipleDocumentSelection.onContext.bind(directory));
@@ -856,6 +898,19 @@ Hooks.on("renderDocumentDirectory", (directory, html, options) => {
         //ignore if I clicked on a directory
         //if (event.originalEvent.path && event.originalEvent.path.length && $(event.originalEvent.path[0]).hasClass("directory-list"))
             MultipleDocumentSelection.clearTab.call(directory, directory);
+    })
+});
+
+Hooks.on("renderCompendiumDirectory", (directory, html, options) => {
+    $('.entry', html)
+        .on("pointerdown", MultipleDocumentSelection.onMouseDown.bind(directory))
+        .on("pointerup", MultipleDocumentSelection.onMouseUp.bind(directory))
+        .on("contextmenu", MultipleDocumentSelection.onContext.bind(directory));
+
+    $('.directory-list', html).on('pointerup', (event) => {
+        //ignore if I clicked on a directory
+        //if (event.originalEvent.path && event.originalEvent.path.length && $(event.originalEvent.path[0]).hasClass("directory-list"))
+        MultipleDocumentSelection.clearTab.call(directory, directory);
     })
 });
 
@@ -870,7 +925,7 @@ Hooks.on("renderSceneDirectory", (app, html, options) => {
 });
 
 Hooks.on("clickPlaylistSound", (sound) => {
-    let directory = ui.sidebar.tabs["playlists"];
+    let directory = ui.playlists;
     return !(directory._startPointerDown || directory._groupSelect);
 });
 

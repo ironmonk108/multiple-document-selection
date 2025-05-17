@@ -1,7 +1,7 @@
 import { i18n } from "./multiple-document-selection.js";
 
 export const registerSettings = function () {
-    // Register any custom module settings here
+	// Register any custom module settings here
 	let modulename = "multiple-document-selection";
 
 	game.settings.register(modulename, "long-press", {
