@@ -894,6 +894,41 @@ Hooks.on("renderDocumentDirectory", (directory, html, options) => {
         .on("pointerup", MultipleDocumentSelection.onMouseUp.bind(directory))
         .on("contextmenu", MultipleDocumentSelection.onContext.bind(directory));
 
+    // Add specific handler for Item Directory (copied from v12)
+    if (directory instanceof foundry.applications.sidebar.tabs.ItemDirectory) {
+        $(".document", html).on("click", function(event) {
+            if (directory._groupSelect || directory._startPointerDown) {
+                event.preventDefault();
+                event.stopPropagation();
+                const entryId = event.currentTarget.closest(".document").dataset.entryId;
+                
+                if (directory._groupSelect.has(entryId)) {
+                    MultipleDocumentSelection.removeDocument(directory, entryId);
+                } else {
+                    if (event.shiftKey && MultipleDocumentSelection._lastId) {
+                        let elem1 = $(`.document[data-entry-id="${entryId}"]`, directory.element);
+                        let elem2 = $(`.document[data-entry-id="${MultipleDocumentSelection._lastId}"]`, elem1.parent());
+                        
+                        if (elem2.length) {
+                            if (elem2.index() < elem1.index()) {
+                                let temp = elem2;
+                                elem2 = elem1;
+                                elem1 = temp;
+                            }
+                            let elements = elem1.nextUntil(elem2, 'li');
+                            
+                            for (let elem of elements) {
+                                MultipleDocumentSelection.addDocument(directory, elem.dataset.entryId);
+                            }
+                        }
+                    }
+                    MultipleDocumentSelection.addDocument(directory, entryId);
+                }
+                return false;
+            }
+        });
+    }
+
     $('.directory-list', html).on('pointerup', (event) => {
         //ignore if I clicked on a directory
         //if (event.originalEvent.path && event.originalEvent.path.length && $(event.originalEvent.path[0]).hasClass("directory-list"))
