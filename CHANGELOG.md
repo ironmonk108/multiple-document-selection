@@ -1,3 +1,9 @@
+## Version 13.02
+
+Fixing compatibility with modules or systems that override the default Foundry directory
+
+Fixing issues with the context menus
+
 ## Version 13.01
 
 v13 Compatibility

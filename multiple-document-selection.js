@@ -46,8 +46,8 @@ export class MultipleDocumentSelection {
 
 
         if (game.modules.get("lib-wrapper")?.active) {
-            libWrapper.ignore_conflicts("multiple-document-selection", "monks-scene-navigation", "foundry.applications.sidebar.tabs.SceneDirectory.prototype._onClickEntry");
-            libWrapper.ignore_conflicts("multiple-document-selection", "monks-common-display", "foundry.applications.sidebar.tabs.ActorDirectory.prototype._onClickEntry");
+            libWrapper.ignore_conflicts("multiple-document-selection", "monks-scene-navigation", "CONFIG.ui.scenes.prototype._onClickEntry");
+            libWrapper.ignore_conflicts("multiple-document-selection", "monks-common-display", "CONFIG.ui.actors.prototype._onClickEntry");
         }
 
         game.MultipleDocumentSelection = MultipleDocumentSelection;
@@ -103,24 +103,24 @@ export class MultipleDocumentSelection {
         }
 
         if (game.modules.get("lib-wrapper")?.active) {
-            libWrapper.register("multiple-document-selection", "foundry.applications.sidebar.tabs.ActorDirectory.prototype._onClickEntry", clickEntryName, "MIXED");
-            libWrapper.register("multiple-document-selection", "foundry.applications.sidebar.tabs.CardsDirectory.prototype._onClickEntry", clickEntryName, "MIXED");
-            libWrapper.register("multiple-document-selection", "foundry.applications.sidebar.tabs.ItemDirectory.prototype._onClickEntry", clickEntryName, "MIXED");
-            libWrapper.register("multiple-document-selection", "foundry.applications.sidebar.tabs.JournalDirectory.prototype._onClickEntry", clickEntryName, "MIXED");
-            libWrapper.register("multiple-document-selection", "foundry.applications.sidebar.tabs.SceneDirectory.prototype._onClickEntry", clickEntryName, "MIXED");
-            libWrapper.register("multiple-document-selection", "foundry.applications.sidebar.tabs.RollTableDirectory.prototype._onClickEntry", clickEntryName, "MIXED");
-            libWrapper.register("multiple-document-selection", "foundry.applications.sidebar.tabs.MacroDirectory.prototype._onClickEntry", clickEntryName, "MIXED");
-            libWrapper.register("multiple-document-selection", "foundry.applications.sidebar.tabs.CompendiumDirectory.prototype._onClickEntry", clickEntryName, "MIXED");
+            libWrapper.register("multiple-document-selection", "CONFIG.ui.actors.prototype._onClickEntry", clickEntryName, "MIXED");
+            libWrapper.register("multiple-document-selection", "CONFIG.ui.cards.prototype._onClickEntry", clickEntryName, "MIXED");
+            libWrapper.register("multiple-document-selection", "CONFIG.ui.items.prototype._onClickEntry", clickEntryName, "MIXED");
+            libWrapper.register("multiple-document-selection", "CONFIG.ui.journal.prototype._onClickEntry", clickEntryName, "MIXED");
+            libWrapper.register("multiple-document-selection", "CONFIG.ui.scenes.prototype._onClickEntry", clickEntryName, "MIXED");
+            libWrapper.register("multiple-document-selection", "CONFIG.ui.tables.prototype._onClickEntry", clickEntryName, "MIXED");
+            libWrapper.register("multiple-document-selection", "CONFIG.ui.macros.prototype._onClickEntry", clickEntryName, "MIXED");
+            libWrapper.register("multiple-document-selection", "CONFIG.ui.compendium.prototype._onClickEntry", clickEntryName, "MIXED");
         } else {
             let directories = [
-                foundry.applications.sidebar.tabs.ActorDirectory,
-                foundry.applications.sidebar.tabs.CardsDirectory,
-                foundry.applications.sidebar.tabs.ItemDirectory,
-                foundry.applications.sidebar.tabs.JournalDirectory,
-                foundry.applications.sidebar.tabs.SceneDirectory,
-                foundry.applications.sidebar.tabs.RollTableDirectory,
-                foundry.applications.sidebar.tabs.MacroDirectory,
-                foundry.applications.sidebar.tabs.CompendiumDirectory];
+                CONFIG.ui.actors,
+                CONFIG.ui.cards,
+                CONFIG.ui.items,
+                CONFIG.ui.journal,
+                CONFIG.ui.scenes,
+                CONFIG.ui.tables,
+                CONFIG.ui.macros,
+                CONFIG.ui.compendium];
             for (let dir of directories) {
                 const oldClickEntryName = dir.prototype._onClickEntry;
                 dir.prototype._onClickEntry = function (event) {
@@ -195,26 +195,26 @@ export class MultipleDocumentSelection {
         }
 
         if (game.modules.get("lib-wrapper")?.active) {
-            libWrapper.register("multiple-document-selection", "foundry.applications.sidebar.tabs.ActorDirectory.prototype._onDrop", onDropFolder, "MIXED");
-            libWrapper.register("multiple-document-selection", "foundry.applications.sidebar.tabs.CardsDirectory.prototype._onDrop", onDropFolder, "MIXED");
-            libWrapper.register("multiple-document-selection", "foundry.applications.sidebar.tabs.ItemDirectory.prototype._onDrop", onDropFolder, "MIXED");
-            libWrapper.register("multiple-document-selection", "foundry.applications.sidebar.tabs.JournalDirectory.prototype._onDrop", onDropFolder, "MIXED");
-            libWrapper.register("multiple-document-selection", "foundry.applications.sidebar.tabs.PlaylistDirectory.prototype._onDrop", onDropFolder, "MIXED");
-            libWrapper.register("multiple-document-selection", "foundry.applications.sidebar.tabs.SceneDirectory.prototype._onDrop", onDropFolder, "MIXED");
-            libWrapper.register("multiple-document-selection", "foundry.applications.sidebar.tabs.RollTableDirectory.prototype._onDrop", onDropFolder, "MIXED");
-            libWrapper.register("multiple-document-selection", "foundry.applications.sidebar.tabs.MacroDirectory.prototype._onDrop", onDropFolder, "MIXED");
-            libWrapper.register("multiple-document-selection", "foundry.applications.sidebar.tabs.CompendiumDirectory.prototype._onDrop", onDropFolder, "MIXED");
+            libWrapper.register("multiple-document-selection", "CONFIG.ui.actors.prototype._onDrop", onDropFolder, "MIXED");
+            libWrapper.register("multiple-document-selection", "CONFIG.ui.cards.prototype._onDrop", onDropFolder, "MIXED");
+            libWrapper.register("multiple-document-selection", "CONFIG.ui.items.prototype._onDrop", onDropFolder, "MIXED");
+            libWrapper.register("multiple-document-selection", "CONFIG.ui.journal.prototype._onDrop", onDropFolder, "MIXED");
+            libWrapper.register("multiple-document-selection", "CONFIG.ui.playlists.prototype._onDrop", onDropFolder, "MIXED");
+            libWrapper.register("multiple-document-selection", "CONFIG.ui.scenes.prototype._onDrop", onDropFolder, "MIXED");
+            libWrapper.register("multiple-document-selection", "CONFIG.ui.tables.prototype._onDrop", onDropFolder, "MIXED");
+            libWrapper.register("multiple-document-selection", "CONFIG.ui.macros.prototype._onDrop", onDropFolder, "MIXED");
+            libWrapper.register("multiple-document-selection", "CONFIG.ui.compendium.prototype._onDrop", onDropFolder, "MIXED");
         } else {
             for (let dir of [
-                foundry.applications.sidebar.tabs.ActorDirectory,
-                foundry.applications.sidebar.tabs.CardsDirectory,
-                foundry.applications.sidebar.tabs.ItemDirectory,
-                foundry.applications.sidebar.tabs.JournalDirectory,
-                foundry.applications.sidebar.tabs.PlaylistDirectory,
-                foundry.applications.sidebar.tabs.SceneDirectory,
-                foundry.applications.sidebar.tabs.RollTableDirectory,
-                foundry.applications.sidebar.tabs.MacroDirectory,
-                foundry.applications.sidebar.tabs.CompendiumDirectory]) {
+                CONFIG.ui.actors,
+                CONFIG.ui.cards,
+                CONFIG.ui.items,
+                CONFIG.ui.journal,
+                CONFIG.ui.playlists,
+                CONFIG.ui.scenes,
+                CONFIG.ui.tables,
+                CONFIG.ui.macros,
+                CONFIG.ui.compendium]) {
                 const oldOnDrop = dir.prototype._onDrop;
                 dir.prototype._onDrop = function (event) {
                     return onDropFolder.call(this, oldOnDrop.bind(this), ...arguments);
@@ -262,26 +262,26 @@ export class MultipleDocumentSelection {
         }
 
         if (game.modules.get("lib-wrapper")?.active) {
-            libWrapper.register("multiple-document-selection", "foundry.applications.sidebar.tabs.ActorDirectory.prototype._onDragStart", onDragStart, "WRAPPER");
-            libWrapper.register("multiple-document-selection", "foundry.applications.sidebar.tabs.CardsDirectory.prototype._onDragStart", onDragStart, "WRAPPER");
-            libWrapper.register("multiple-document-selection", "foundry.applications.sidebar.tabs.ItemDirectory.prototype._onDragStart", onDragStart, "WRAPPER");
-            libWrapper.register("multiple-document-selection", "foundry.applications.sidebar.tabs.JournalDirectory.prototype._onDragStart", onDragStart, "WRAPPER");
-            libWrapper.register("multiple-document-selection", "foundry.applications.sidebar.tabs.PlaylistDirectory.prototype._onDragStart", onDragStart, "WRAPPER");
-            libWrapper.register("multiple-document-selection", "foundry.applications.sidebar.tabs.SceneDirectory.prototype._onDragStart", onDragStart, "WRAPPER");
-            libWrapper.register("multiple-document-selection", "foundry.applications.sidebar.tabs.RollTableDirectory.prototype._onDragStart", onDragStart, "WRAPPER");
-            libWrapper.register("multiple-document-selection", "foundry.applications.sidebar.tabs.MacroDirectory.prototype._onDragStart", onDragStart, "WRAPPER");
-            libWrapper.register("multiple-document-selection", "foundry.applications.sidebar.tabs.CompendiumDirectory.prototype._onDragStart", onDragStart, "WRAPPER");
+            libWrapper.register("multiple-document-selection", "CONFIG.ui.actors.prototype._onDragStart", onDragStart, "WRAPPER");
+            libWrapper.register("multiple-document-selection", "CONFIG.ui.cards.prototype._onDragStart", onDragStart, "WRAPPER");
+            libWrapper.register("multiple-document-selection", "CONFIG.ui.items.prototype._onDragStart", onDragStart, "WRAPPER");
+            libWrapper.register("multiple-document-selection", "CONFIG.ui.journal.prototype._onDragStart", onDragStart, "WRAPPER");
+            libWrapper.register("multiple-document-selection", "CONFIG.ui.playlists.prototype._onDragStart", onDragStart, "WRAPPER");
+            libWrapper.register("multiple-document-selection", "CONFIG.ui.scenes.prototype._onDragStart", onDragStart, "WRAPPER");
+            libWrapper.register("multiple-document-selection", "CONFIG.ui.tables.prototype._onDragStart", onDragStart, "WRAPPER");
+            libWrapper.register("multiple-document-selection", "CONFIG.ui.macros.prototype._onDragStart", onDragStart, "WRAPPER");
+            libWrapper.register("multiple-document-selection", "CONFIG.ui.compendium.prototype._onDragStart", onDragStart, "WRAPPER");
         } else {
             for (let dir of [
-                foundry.applications.sidebar.tabs.ActorDirectory,
-                foundry.applications.sidebar.tabs.CardsDirectory,
-                foundry.applications.sidebar.tabs.ItemDirectory,
-                foundry.applications.sidebar.tabs.JournalDirectory,
-                foundry.applications.sidebar.tabs.PlaylistDirectory,
-                foundry.applications.sidebar.tabs.SceneDirectory,
-                foundry.applications.sidebar.tabs.RollTableDirectory,
-                foundry.applications.sidebar.tabs.MacroDirectory,
-                foundry.applications.sidebar.tabs.CompendiumDirectory]) {
+                CONFIG.ui.actors,
+                CONFIG.ui.cards,
+                CONFIG.ui.items,
+                CONFIG.ui.journal,
+                CONFIG.ui.playlists,
+                CONFIG.ui.scenes,
+                CONFIG.ui.tables,
+                CONFIG.ui.macros,
+                CONFIG.ui.compendium]) {
                 const oldDragStart = dir.prototype._onDragStart;
                 dir.prototype._onDragStart = function (event) {
                     return onDragStart.call(this, oldDragStart.bind(this), ...arguments);
@@ -331,6 +331,10 @@ export class MultipleDocumentSelection {
 
         for (let tabName of ["Actor", "Cards", "Item", "JournalEntry", "RollTable", "Macro"].concat(additionalDirectories.map(d => d.name))) {
             Hooks.on(`get${tabName}ContextOptions`, (handler, menuItems) => {
+
+                if (!handler.collection)
+                    return menuItems;
+
                 window.setTimeout(() => {
                     // make sure we're the last one to activate
                     for (let menu of menuItems) {
@@ -339,7 +343,7 @@ export class MultipleDocumentSelection {
                             menu.condition = function (li) {
                                 if (handler._multipleSelect === true)
                                     return false;
-                                return oldCondition !== null ? (oldCondition instanceof Function ? oldCondition(li) : oldCondition) : true;
+                                return oldCondition !== null && oldCondition !== undefined ? (oldCondition instanceof Function ? oldCondition(li) : oldCondition) : true;
                             }
                         }
                     }
@@ -402,6 +406,9 @@ export class MultipleDocumentSelection {
         }
 
         Hooks.on(`getSceneContextOptions`, (handler, menuItems) => {
+            if (!(handler instanceof foundry.applications.sidebar.tabs.SceneDirectory) || !handler.collection)
+                return menuItems;
+
             window.setTimeout(() => {
                 // make sure we're the last one to activate
                 for (let menu of menuItems) {
@@ -410,7 +417,7 @@ export class MultipleDocumentSelection {
                         menu.condition = function (li) {
                             if (handler._multipleSelect === true)
                                 return false;
-                            return oldCondition !== null ? (oldCondition instanceof Function ? oldCondition(li) : oldCondition) : true;
+                            return oldCondition !== null && oldCondition !== undefined ? (oldCondition instanceof Function ? oldCondition(li) : oldCondition) : true;
                         }
                     }
                 }
@@ -485,6 +492,9 @@ export class MultipleDocumentSelection {
         })
 
         Hooks.on("getCompendiumContextOptions", (handler, menuItems) => {
+            if (!handler.collection)
+                return menuItems;
+
             window.setTimeout(() => {
                 // make sure we're the last one to activate
                 for (let menu of menuItems) {
@@ -493,7 +503,7 @@ export class MultipleDocumentSelection {
                         menu.condition = function (li) {
                             if (handler._multipleSelect === true)
                                 return false;
-                            return oldCondition !== null ? (oldCondition instanceof Function ? oldCondition(li) : oldCondition) : true;
+                            return oldCondition !== null && oldCondition !== undefined ? (oldCondition instanceof Function ? oldCondition(li) : oldCondition) : true;
                         }
                     }
                 }
@@ -519,6 +529,9 @@ export class MultipleDocumentSelection {
         })
 
         Hooks.on(`getPlaylistSoundContextOptions`, (handler, menuItems) => {
+            if (!handler.collection)
+                return menuItems;
+
             window.setTimeout(() => {
                 // make sure we're the last one to activate
                 for (let menu of menuItems) {
@@ -527,7 +540,7 @@ export class MultipleDocumentSelection {
                         menu.condition = function (li) {
                             if (handler._multipleSelect === true)
                                 return false;
-                            return oldCondition !== null ? (oldCondition instanceof Function ? oldCondition(li) : oldCondition) : true;
+                            return oldCondition !== null && oldCondition !== undefined ? (oldCondition instanceof Function ? oldCondition(li) : oldCondition) : true;
                         }
                     }
                 }
@@ -721,7 +734,9 @@ export class MultipleDocumentSelection {
             const documentClass = (tab instanceof foundry.applications.sidebar.tabs.PlaylistDirectory ? PlaylistSound : tab.collection?.documentClass);
             const type = game.i18n.localize(documentClass.metadata.label);
             return foundry.applications.api.DialogV2.confirm({
-                title: `${game.i18n.format("DOCUMENT.Delete", { type: `${tab._groupSelect.size} ${type}` })}`,
+                window: {
+                    title: `${game.i18n.format("DOCUMENT.Delete", { type: `${tab._groupSelect.size} ${type}` })}`
+                },
                 content: `<h4>${game.i18n.localize("AreYouSure")}</h4><p>${game.i18n.format("MultipleDocumentSelection.DeleteWarning", { count: tab._groupSelect.size })}</p>`,
                 yes: {
                     callback: async () => {
