@@ -14,7 +14,7 @@ export const WithOwnershipConfig = (ConfigClass) => {
         }
 
         get title() {
-            return game.i18n.format("OWNERSHIP.Title", { object: "Multiple Documents"});
+            return game.i18n.format("OWNERSHIP.Title", { object: game.i18n.localize("MultipleDocumentSelection.multiple-documents")});
         }
 
         getData(options) {

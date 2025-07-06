@@ -352,7 +352,7 @@ export class MultipleDocumentSelection {
                 menuItems.push(
                     {
                         icon: '<i class="fas fa-trash"></i>',
-                        name: "Delete Multiple",
+                        name: `${game.i18n.format("MultipleDocumentSelection.operation", {operation: game.i18n.localize("SIDEBAR.Delete")})}`,
                         multiple: true,
                         condition: (li) => {
                             return game.user.isGM && handler._multipleSelect === true && $(li).hasClass('selected');
@@ -364,7 +364,7 @@ export class MultipleDocumentSelection {
                     },
                     {
                         icon: '<i class="far fa-copy"></i>',
-                        name: "Duplicate Multiple",
+                        name: `${game.i18n.format("MultipleDocumentSelection.operation", {operation: game.i18n.localize("SIDEBAR.Duplicate")})}`,
                         multiple: true,
                         condition: (li) => {
                             return game.user.isGM && handler._multipleSelect === true && $(li).hasClass('selected');
@@ -376,7 +376,7 @@ export class MultipleDocumentSelection {
                     },
                     {
                         icon: '<i class="fas fa-lock"></i>',
-                        name: "Configure Ownership",
+                        name: game.i18n.localize("OWNERSHIP.Configure"),
                         multiple: true,
                         condition: (li) => {
                             let entryId = li.dataset.entryId;
@@ -390,7 +390,7 @@ export class MultipleDocumentSelection {
                     },
                     {
                         icon: '<i class="fas fa-file-export"></i>',
-                        name: "Export Data",
+                        name: game.i18n.localize("SIDEBAR.Export"),
                         multiple: true,
                         condition: (li) => {
                             return handler._multipleSelect === true && $(li).hasClass('selected') && game.system.id !== "pf2e";
@@ -426,7 +426,7 @@ export class MultipleDocumentSelection {
             menuItems.push(
                 {
                     icon: '<i class="fas fa-trash"></i>',
-                    name: "Delete Multiple",
+                    name: `${game.i18n.format("MultipleDocumentSelection.operation", {operation: game.i18n.localize("SIDEBAR.Delete")})}`,
                     multiple: true,
                     condition: (li) => {
                         return game.user.isGM && handler._multipleSelect === true && $(li).hasClass('selected');
@@ -438,7 +438,7 @@ export class MultipleDocumentSelection {
                 },
                 {
                     icon: '<i class="far fa-copy"></i>',
-                    name: "Duplicate Multiple",
+                    name: `${game.i18n.format("MultipleDocumentSelection.operation", {operation: game.i18n.localize("SIDEBAR.Duplicate")})}`,
                     multiple: true,
                     condition: (li) => {
                         return game.user.isGM && handler._multipleSelect === true && $(li).hasClass('selected');
@@ -450,7 +450,7 @@ export class MultipleDocumentSelection {
                 },
                 {
                     icon: '<i class="fas fa-compass fa-fw"></i>',
-                    name: "Toggle Navigation Multiple",
+                    name: `${game.i18n.format("MultipleDocumentSelection.operation", {operation: game.i18n.localize("SCENE.ToggleNav")})}`,
                     multiple: true,
                     condition: (li) => {
                         return game.user.isGM && handler._multipleSelect === true && $(li).hasClass('selected');
@@ -462,7 +462,7 @@ export class MultipleDocumentSelection {
                 },
                 {
                     icon: '<i class="fas fa-lock"></i>',
-                    name: "Configure Ownership",
+                    name: game.i18n.localize("OWNERSHIP.Configure"),
                     multiple: true,
                     condition: (li) => {
                         let entryId = li.dataset.entryId;
@@ -476,7 +476,7 @@ export class MultipleDocumentSelection {
                 },
                 {
                     icon: '<i class="fas fa-file-export"></i>',
-                    name: "Export Data",
+                    name: game.i18n.localize("SIDEBAR.Export"),
                     multiple: true,
                     condition: (li) => {
                         return handler._multipleSelect === true && $(li).hasClass('selected') && game.system.id !== "pf2e";
@@ -512,7 +512,7 @@ export class MultipleDocumentSelection {
             menuItems.push(
                 {
                     icon: '<i class="fas fa-trash"></i>',
-                    name: "Delete Multiple",
+                    name: `${game.i18n.format("MultipleDocumentSelection.operation", {operation: game.i18n.localize("SIDEBAR.Delete")})}`,
                     multiple: true,
                     condition: (li) => {
                         return game.user.isGM && handler._multipleSelect === true && $(li).hasClass('selected');
@@ -549,7 +549,7 @@ export class MultipleDocumentSelection {
             menuItems.push(
                 {
                     icon: '<i class="fas fa-trash"></i>',
-                    name: "Delete Multiple",
+                    name: `${game.i18n.format("MultipleDocumentSelection.operation", {operation: game.i18n.localize("SIDEBAR.Delete")})}`,
                     multiple: true,
                     condition: (li) => {
                         return game.user.isGM && handler._multipleSelect === true && $(li).hasClass('selected');
@@ -560,7 +560,7 @@ export class MultipleDocumentSelection {
                 },
                 {
                     icon: '<i class="fas fa-lock"></i>',
-                    name: "Preload Sounds",
+                    name: game.i18n.localize("MultipleDocumentSelection.preload-sounds"),
                     multiple: true,
                     condition: (li) => {
                         return game.user.isGM && handler._multipleSelect === true && $(li).hasClass('selected');
