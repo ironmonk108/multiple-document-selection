@@ -1,0 +1,6 @@
+{
+  "MultipleDocumentSelection.long-press.name": "Długość długiego naciśnięcia",
+  "MultipleDocumentSelection.long-press.hint": "Czas, po jakim należy nacisnąć przycisk, aby aktywować wybór grupy. (sekundy)",
+
+  "MultipleDocumentSelection.DeleteWarning": "Dokumenty {count} zostaną trwale usunięte i nie będzie można ich odzyskać."
+}
