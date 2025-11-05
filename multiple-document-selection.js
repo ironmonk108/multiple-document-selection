@@ -110,7 +110,7 @@ export class MultipleDocumentSelection {
             libWrapper.register("multiple-document-selection", "CONFIG.ui.scenes.prototype._onClickEntry", clickEntryName, "MIXED");
             libWrapper.register("multiple-document-selection", "CONFIG.ui.tables.prototype._onClickEntry", clickEntryName, "MIXED");
             libWrapper.register("multiple-document-selection", "CONFIG.ui.macros.prototype._onClickEntry", clickEntryName, "MIXED");
-            libWrapper.register("multiple-document-selection", "CONFIG.ui.compendium.prototype._onClickEntry", clickEntryName, "MIXED");
+            libWrapper.register("multiple-document-selection", "foundry.applications.sidebar.apps.Compendium.prototype._onClickEntry", clickEntryName, "MIXED");
         } else {
             let directories = [
                 CONFIG.ui.actors,
@@ -119,13 +119,17 @@ export class MultipleDocumentSelection {
                 CONFIG.ui.journal,
                 CONFIG.ui.scenes,
                 CONFIG.ui.tables,
-                CONFIG.ui.macros,
-                CONFIG.ui.compendium];
+                CONFIG.ui.macros];
             for (let dir of directories) {
                 const oldClickEntryName = dir.prototype._onClickEntry;
                 dir.prototype._onClickEntry = function (event) {
                     return clickEntryName.call(this, oldClickEntryName.bind(this), ...arguments);
                 }
+            }
+
+            const oldClickEntryName = foundry.applications.sidebar.apps.Compendium.prototype._onClickEntry;
+            foundry.applications.sidebar.apps.Compendium.prototype._onClickEntry = function (event) {
+                return clickEntryName.call(this, oldClickEntryName.bind(this), ...arguments);
             }
         }
         for (let dir of additionalDirectories) {
@@ -352,7 +356,7 @@ export class MultipleDocumentSelection {
                 menuItems.push(
                     {
                         icon: '<i class="fas fa-trash"></i>',
-                        name: "Delete Multiple",
+                        name: `${game.i18n.format("MultipleDocumentSelection.operation", { operation: i18n("SIDEBAR.Delete") })}`,
                         multiple: true,
                         condition: (li) => {
                             return game.user.isGM && handler._multipleSelect === true && $(li).hasClass('selected');
@@ -364,7 +368,7 @@ export class MultipleDocumentSelection {
                     },
                     {
                         icon: '<i class="far fa-copy"></i>',
-                        name: "Duplicate Multiple",
+                        name: `${game.i18n.format("MultipleDocumentSelection.operation", { operation: i18n("SIDEBAR.Duplicate") })}`,
                         multiple: true,
                         condition: (li) => {
                             return game.user.isGM && handler._multipleSelect === true && $(li).hasClass('selected');
@@ -376,7 +380,7 @@ export class MultipleDocumentSelection {
                     },
                     {
                         icon: '<i class="fas fa-lock"></i>',
-                        name: "Configure Ownership",
+                        name: i18n("OWNERSHIP.Configure"),
                         multiple: true,
                         condition: (li) => {
                             let entryId = li.dataset.entryId;
@@ -390,7 +394,7 @@ export class MultipleDocumentSelection {
                     },
                     {
                         icon: '<i class="fas fa-file-export"></i>',
-                        name: "Export Data",
+                        name: i18n("SIDEBAR.Export"),
                         multiple: true,
                         condition: (li) => {
                             return handler._multipleSelect === true && $(li).hasClass('selected') && game.system.id !== "pf2e";
@@ -426,7 +430,7 @@ export class MultipleDocumentSelection {
             menuItems.push(
                 {
                     icon: '<i class="fas fa-trash"></i>',
-                    name: "Delete Multiple",
+                    name: `${game.i18n.format("MultipleDocumentSelection.operation", { operation: i18n("SIDEBAR.Delete") })}`,
                     multiple: true,
                     condition: (li) => {
                         return game.user.isGM && handler._multipleSelect === true && $(li).hasClass('selected');
@@ -438,7 +442,7 @@ export class MultipleDocumentSelection {
                 },
                 {
                     icon: '<i class="far fa-copy"></i>',
-                    name: "Duplicate Multiple",
+                    name: `${game.i18n.format("MultipleDocumentSelection.operation", { operation: i18n("SIDEBAR.Duplicate") })}`,
                     multiple: true,
                     condition: (li) => {
                         return game.user.isGM && handler._multipleSelect === true && $(li).hasClass('selected');
@@ -450,7 +454,7 @@ export class MultipleDocumentSelection {
                 },
                 {
                     icon: '<i class="fas fa-compass fa-fw"></i>',
-                    name: "Toggle Navigation Multiple",
+                    name: `${game.i18n.format("MultipleDocumentSelection.operation", { operation: i18n("SCENE.ToggleNav") })}`,
                     multiple: true,
                     condition: (li) => {
                         return game.user.isGM && handler._multipleSelect === true && $(li).hasClass('selected');
@@ -462,7 +466,7 @@ export class MultipleDocumentSelection {
                 },
                 {
                     icon: '<i class="fas fa-lock"></i>',
-                    name: "Configure Ownership",
+                    name: i18n("OWNERSHIP.Configure"),
                     multiple: true,
                     condition: (li) => {
                         let entryId = li.dataset.entryId;
@@ -476,7 +480,7 @@ export class MultipleDocumentSelection {
                 },
                 {
                     icon: '<i class="fas fa-file-export"></i>',
-                    name: "Export Data",
+                    name: i18n("SIDEBAR.Export"),
                     multiple: true,
                     condition: (li) => {
                         return handler._multipleSelect === true && $(li).hasClass('selected') && game.system.id !== "pf2e";
@@ -512,7 +516,7 @@ export class MultipleDocumentSelection {
             menuItems.push(
                 {
                     icon: '<i class="fas fa-trash"></i>',
-                    name: "Delete Multiple",
+                    name: `${game.i18n.format("MultipleDocumentSelection.operation", { operation: i18n("SIDEBAR.Delete") })}`,
                     multiple: true,
                     condition: (li) => {
                         return game.user.isGM && handler._multipleSelect === true && $(li).hasClass('selected');
@@ -549,7 +553,7 @@ export class MultipleDocumentSelection {
             menuItems.push(
                 {
                     icon: '<i class="fas fa-trash"></i>',
-                    name: "Delete Multiple",
+                    name: `${game.i18n.format("MultipleDocumentSelection.operation", { operation: i18n("SIDEBAR.Delete") })}`,
                     multiple: true,
                     condition: (li) => {
                         return game.user.isGM && handler._multipleSelect === true && $(li).hasClass('selected');
@@ -560,7 +564,7 @@ export class MultipleDocumentSelection {
                 },
                 {
                     icon: '<i class="fas fa-lock"></i>',
-                    name: "Preload Sounds",
+                    name: i18n("MultipleDocumentSelection.preload-sounds"),
                     multiple: true,
                     condition: (li) => {
                         return game.user.isGM && handler._multipleSelect === true && $(li).hasClass('selected');
@@ -575,7 +579,7 @@ export class MultipleDocumentSelection {
 
         patchFunc("foundry.applications.ux.ContextMenu.prototype.constructor.create", function (app, html, selector, menuItems, { hookName = "EntryContext", ...options } = {}) {
             for (const cls of app.constructor._getInheritanceChain()) {
-                Hooks.call(`get${cls.name}${hookName}`, html, menuItems, app);
+                Hooks.call(`get${cls.name}${hookName}`, app, menuItems);
             }
 
             if (menuItems) return new foundry.applications.ux.ContextMenu(html, selector, menuItems, options);

@@ -14,17 +14,17 @@ export const WithOwnershipConfig = (ConfigClass) => {
         }
 
         get title() {
-            return game.i18n.format("OWNERSHIP.Title", { object: "Multiple Documents"});
+            return game.i18n.format("OWNERSHIP.Title", { object: i18n("MultipleDocumentSelection.multiple-documents") });
         }
 
         getData(options) {
             // User permission levels
             let playerLevels = Object.entries(CONST.DOCUMENT_META_OWNERSHIP_LEVELS).map(([name, level]) => {
-                return { level, label: game.i18n.localize(`OWNERSHIP.${name}`) };
+                return { level, label: i18n(`OWNERSHIP.${name}`) };
             });
             for (let [name, level] of Object.entries(CONST.DOCUMENT_OWNERSHIP_LEVELS)) {
                 if ((level < 0)) continue;
-                playerLevels.push({ level, label: game.i18n.localize(`OWNERSHIP.${name}`) });
+                playerLevels.push({ level, label: i18n(`OWNERSHIP.${name}`) });
             }
 
             // Default permission levels

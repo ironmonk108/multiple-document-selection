@@ -1,3 +1,19 @@
+## Version 13.03
+
+Fixing issue with dragging items from a Compendium
+
+Fixing issue with entries opening from a Compendium when trying to multiple select
+
+Fixing Context Menu create override, v13 changed the property order
+
+Adding Polish translations
+
+Adding Japanese translations
+
+Adding Portuguese translations
+
+Adding Italian translations
+
 ## Version 13.02
 
 Fixing compatibility with modules or systems that override the default Foundry directory

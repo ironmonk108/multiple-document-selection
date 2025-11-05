@@ -1,0 +1,10 @@
+﻿{
+  "MultipleDocumentSelection.long-press.name": "長押し時間",
+  "MultipleDocumentSelection.long-press.hint": "グループ選択が有効になるまでに押し続ける時間（秒）",
+
+  "MultipleDocumentSelection.DeleteWarning": "これら{count}つのドキュメントは完全に削除され、元に戻すことはできません。",
+
+  "MultipleDocumentSelection.multiple-documents": "複数ドキュメント",
+  "MultipleDocumentSelection.operation": "複数{operation}",
+  "MultipleDocumentSelection.preload-sounds": "先読み"
+}
