@@ -1,6 +1,10 @@
-﻿{
+{
   "MultipleDocumentSelection.long-press.name": "Długość długiego naciśnięcia",
   "MultipleDocumentSelection.long-press.hint": "Czas, po jakim należy nacisnąć przycisk, aby aktywować wybór grupy. (sekundy)",
 
-  "MultipleDocumentSelection.DeleteWarning": "Dokumenty {count} zostaną trwale usunięte i nie będzie można ich odzyskać."
+  "MultipleDocumentSelection.DeleteWarning": "Dokumenty {count} zostaną trwale usunięte i nie będzie można ich odzyskać.",
+
+  "MultipleDocumentSelection.multiple-documents": "Wiele dokumentów",
+  "MultipleDocumentSelection.operation": "Wielokrotna {operation}",
+  "MultipleDocumentSelection.preload-sounds": "Wstępne ładowanie dźwięków"
 }
