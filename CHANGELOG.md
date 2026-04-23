@@ -1,3 +1,9 @@
+## Version 14.01
+
+v14 Compatibility
+
+Fixing dragging from compendium
+
 ## Version 13.03
 
 Fixing issue with dragging items from a Compendium
