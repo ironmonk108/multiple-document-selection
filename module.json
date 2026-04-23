@@ -1,7 +1,7 @@
 {
   "title": "Multiple Document Selection",
   "description": "Ever wanted to select multiple items in the sidebar directory and move or delete them?",
-  "version": "13.03",
+  "version": "14.01",
   "authors": [
     {
       "name": "IronMonk",
@@ -48,17 +48,14 @@
     "css/multiple-document-selection.css"
   ],
   "url": "https://github.com/ironmonk108/multiple-document-selection",
-  "download": "https://github.com/ironmonk108/multiple-document-selection/archive/13.03.zip",
+  "download": "https://github.com/ironmonk108/multiple-document-selection/archive/14.01.zip",
   "manifest": "https://github.com/ironmonk108/multiple-document-selection/releases/latest/download/module.json",
   "bugs": "https://github.com/ironmonk108/multiple-document-selection/issues",
   "id": "multiple-document-selection",
   "compatibility": {
-    "minimum": "13",
-    "verified": "13"
+    "minimum": "14",
+    "verified": "14"
   },
-  "name": "multiple-document-selection",
-  "minimumCoreVersion": "13",
-  "compatibleCoreVersion": "13",
   "flags": {
 		"fvttdevleague": {
 			"package-jam": 2022

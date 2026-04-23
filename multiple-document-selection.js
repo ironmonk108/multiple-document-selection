@@ -62,7 +62,7 @@ export class MultipleDocumentSelection {
             if (event.ctrlKey && !this._groupSelect) {
                 delete this._startPointerDown;
                 this._groupSelect = new Set();
-                if (this instanceof foundry.applications.sidebar.tabs.CompendiumDirectory) {
+                if (this instanceof foundry.applications.sidebar.apps.Compendium) {
                     MultipleDocumentSelection.compendiums.push(this);
                 }
                 $(this.popOut ? $('.sidebar-tab,.compendium.directory', this.element) : this.element).addClass("multiple-select");
@@ -194,6 +194,7 @@ export class MultipleDocumentSelection {
                     }
                     this._handleDroppedEntry(target, dropData);
                 }
+                MultipleDocumentSelection.clearAllTabs();
             } else
                 return wrapped(...args);
         }
@@ -208,6 +209,7 @@ export class MultipleDocumentSelection {
             libWrapper.register("multiple-document-selection", "CONFIG.ui.tables.prototype._onDrop", onDropFolder, "MIXED");
             libWrapper.register("multiple-document-selection", "CONFIG.ui.macros.prototype._onDrop", onDropFolder, "MIXED");
             libWrapper.register("multiple-document-selection", "CONFIG.ui.compendium.prototype._onDrop", onDropFolder, "MIXED");
+            libWrapper.register("multiple-document-selection", "foundry.applications.sidebar.apps.Compendium.prototype._onDrop", onDropFolder, "MIXED");
         } else {
             for (let dir of [
                 CONFIG.ui.actors,
@@ -218,7 +220,8 @@ export class MultipleDocumentSelection {
                 CONFIG.ui.scenes,
                 CONFIG.ui.tables,
                 CONFIG.ui.macros,
-                CONFIG.ui.compendium]) {
+                CONFIG.ui.compendium,
+                foundry.applications.sidebar.apps.Compendium]) {
                 const oldOnDrop = dir.prototype._onDrop;
                 dir.prototype._onDrop = function (event) {
                     return onDropFolder.call(this, oldOnDrop.bind(this), ...arguments);
@@ -275,6 +278,7 @@ export class MultipleDocumentSelection {
             libWrapper.register("multiple-document-selection", "CONFIG.ui.tables.prototype._onDragStart", onDragStart, "WRAPPER");
             libWrapper.register("multiple-document-selection", "CONFIG.ui.macros.prototype._onDragStart", onDragStart, "WRAPPER");
             libWrapper.register("multiple-document-selection", "CONFIG.ui.compendium.prototype._onDragStart", onDragStart, "WRAPPER");
+            libWrapper.register("multiple-document-selection", "foundry.applications.sidebar.apps.Compendium.prototype._onDragStart", onDragStart, "WRAPPER");
         } else {
             for (let dir of [
                 CONFIG.ui.actors,
@@ -285,7 +289,8 @@ export class MultipleDocumentSelection {
                 CONFIG.ui.scenes,
                 CONFIG.ui.tables,
                 CONFIG.ui.macros,
-                CONFIG.ui.compendium]) {
+                CONFIG.ui.compendium,
+                foundry.applications.sidebar.apps.Compendium]) {
                 const oldDragStart = dir.prototype._onDragStart;
                 dir.prototype._onDragStart = function (event) {
                     return onDragStart.call(this, oldDragStart.bind(this), ...arguments);
@@ -343,11 +348,11 @@ export class MultipleDocumentSelection {
                     // make sure we're the last one to activate
                     for (let menu of menuItems) {
                         if (!menu.multiple) {
-                            let oldCondition = menu.condition;
-                            menu.condition = function (li) {
+                            let oldVisible = menu.visible;
+                            menu.visible = function (li) {
                                 if (handler._multipleSelect === true)
                                     return false;
-                                return oldCondition !== null && oldCondition !== undefined ? (oldCondition instanceof Function ? oldCondition(li) : oldCondition) : true;
+                                return oldVisible !== null && oldVisible !== undefined ? (oldVisible instanceof Function ? oldVisible(li) : oldVisible) : true;
                             }
                         }
                     }
@@ -358,7 +363,7 @@ export class MultipleDocumentSelection {
                         icon: '<i class="fas fa-trash"></i>',
                         name: `${game.i18n.format("MultipleDocumentSelection.operation", { operation: i18n("SIDEBAR.Delete") })}`,
                         multiple: true,
-                        condition: (li) => {
+                        visible: (li) => {
                             return game.user.isGM && handler._multipleSelect === true && $(li).hasClass('selected');
                         },
                         callback: (li) => {
@@ -370,7 +375,7 @@ export class MultipleDocumentSelection {
                         icon: '<i class="far fa-copy"></i>',
                         name: `${game.i18n.format("MultipleDocumentSelection.operation", { operation: i18n("SIDEBAR.Duplicate") })}`,
                         multiple: true,
-                        condition: (li) => {
+                        visible: (li) => {
                             return game.user.isGM && handler._multipleSelect === true && $(li).hasClass('selected');
                         },
                         callback: (li) => {
@@ -382,7 +387,7 @@ export class MultipleDocumentSelection {
                         icon: '<i class="fas fa-lock"></i>',
                         name: i18n("OWNERSHIP.Configure"),
                         multiple: true,
-                        condition: (li) => {
+                        visible: (li) => {
                             let entryId = li.dataset.entryId;
                             let entry = handler.collection.get(entryId);
                             return game.user.isGM && handler._multipleSelect === true && $(li).hasClass('selected') && entry?.ownership;
@@ -396,7 +401,7 @@ export class MultipleDocumentSelection {
                         icon: '<i class="fas fa-file-export"></i>',
                         name: i18n("SIDEBAR.Export"),
                         multiple: true,
-                        condition: (li) => {
+                        visible: (li) => {
                             return handler._multipleSelect === true && $(li).hasClass('selected') && game.system.id !== "pf2e";
                         },
                         callback: (li) => {
@@ -417,11 +422,11 @@ export class MultipleDocumentSelection {
                 // make sure we're the last one to activate
                 for (let menu of menuItems) {
                     if (!menu.multiple) {
-                        let oldCondition = menu.condition;
-                        menu.condition = function (li) {
+                        let oldVisible = menu.visible;
+                        menu.visible = function (li) {
                             if (handler._multipleSelect === true)
                                 return false;
-                            return oldCondition !== null && oldCondition !== undefined ? (oldCondition instanceof Function ? oldCondition(li) : oldCondition) : true;
+                            return oldVisible !== null && oldVisible !== undefined ? (oldVisible instanceof Function ? oldVisible(li) : oldVisible) : true;
                         }
                     }
                 }
@@ -432,7 +437,7 @@ export class MultipleDocumentSelection {
                     icon: '<i class="fas fa-trash"></i>',
                     name: `${game.i18n.format("MultipleDocumentSelection.operation", { operation: i18n("SIDEBAR.Delete") })}`,
                     multiple: true,
-                    condition: (li) => {
+                    visible: (li) => {
                         return game.user.isGM && handler._multipleSelect === true && $(li).hasClass('selected');
                     },
                     callback: (li) => {
@@ -444,7 +449,7 @@ export class MultipleDocumentSelection {
                     icon: '<i class="far fa-copy"></i>',
                     name: `${game.i18n.format("MultipleDocumentSelection.operation", { operation: i18n("SIDEBAR.Duplicate") })}`,
                     multiple: true,
-                    condition: (li) => {
+                    visible: (li) => {
                         return game.user.isGM && handler._multipleSelect === true && $(li).hasClass('selected');
                     },
                     callback: (li) => {
@@ -456,7 +461,7 @@ export class MultipleDocumentSelection {
                     icon: '<i class="fas fa-compass fa-fw"></i>',
                     name: `${game.i18n.format("MultipleDocumentSelection.operation", { operation: i18n("SCENE.ToggleNav") })}`,
                     multiple: true,
-                    condition: (li) => {
+                    visible: (li) => {
                         return game.user.isGM && handler._multipleSelect === true && $(li).hasClass('selected');
                     },
                     callback: (li) => {
@@ -468,7 +473,7 @@ export class MultipleDocumentSelection {
                     icon: '<i class="fas fa-lock"></i>',
                     name: i18n("OWNERSHIP.Configure"),
                     multiple: true,
-                    condition: (li) => {
+                    visible: (li) => {
                         let entryId = li.dataset.entryId;
                         let entry = handler.collection.get(entryId);
                         return game.user.isGM && handler._multipleSelect === true && $(li).hasClass('selected') && entry?.ownership;
@@ -482,7 +487,7 @@ export class MultipleDocumentSelection {
                     icon: '<i class="fas fa-file-export"></i>',
                     name: i18n("SIDEBAR.Export"),
                     multiple: true,
-                    condition: (li) => {
+                    visible: (li) => {
                         return handler._multipleSelect === true && $(li).hasClass('selected') && game.system.id !== "pf2e";
                     },
                     callback: (li) => {
@@ -503,11 +508,11 @@ export class MultipleDocumentSelection {
                 // make sure we're the last one to activate
                 for (let menu of menuItems) {
                     if (!menu.multiple) {
-                        let oldCondition = menu.condition;
-                        menu.condition = function (li) {
+                        let oldVisible = menu.visible;
+                        menu.visible = function (li) {
                             if (handler._multipleSelect === true)
                                 return false;
-                            return oldCondition !== null && oldCondition !== undefined ? (oldCondition instanceof Function ? oldCondition(li) : oldCondition) : true;
+                            return oldVisible !== null && oldVisible !== undefined ? (oldVisible instanceof Function ? oldVisible(li) : oldVisible) : true;
                         }
                     }
                 }
@@ -518,7 +523,7 @@ export class MultipleDocumentSelection {
                     icon: '<i class="fas fa-trash"></i>',
                     name: `${game.i18n.format("MultipleDocumentSelection.operation", { operation: i18n("SIDEBAR.Delete") })}`,
                     multiple: true,
-                    condition: (li) => {
+                    visible: (li) => {
                         return game.user.isGM && handler._multipleSelect === true && $(li).hasClass('selected');
                     },
                     callback: (li) => {
@@ -540,11 +545,11 @@ export class MultipleDocumentSelection {
                 // make sure we're the last one to activate
                 for (let menu of menuItems) {
                     if (!menu.multiple) {
-                        let oldCondition = menu.condition;
-                        menu.condition = function (li) {
+                        let oldVisible = menu.visible;
+                        menu.visible = function (li) {
                             if (handler._multipleSelect === true)
                                 return false;
-                            return oldCondition !== null && oldCondition !== undefined ? (oldCondition instanceof Function ? oldCondition(li) : oldCondition) : true;
+                            return oldVisible !== null && oldVisible !== undefined ? (oldVisible instanceof Function ? oldVisible(li) : oldVisible) : true;
                         }
                     }
                 }
@@ -555,7 +560,7 @@ export class MultipleDocumentSelection {
                     icon: '<i class="fas fa-trash"></i>',
                     name: `${game.i18n.format("MultipleDocumentSelection.operation", { operation: i18n("SIDEBAR.Delete") })}`,
                     multiple: true,
-                    condition: (li) => {
+                    visible: (li) => {
                         return game.user.isGM && handler._multipleSelect === true && $(li).hasClass('selected');
                     },
                     callback: (li) => {
@@ -566,7 +571,7 @@ export class MultipleDocumentSelection {
                     icon: '<i class="fas fa-lock"></i>',
                     name: i18n("MultipleDocumentSelection.preload-sounds"),
                     multiple: true,
-                    condition: (li) => {
+                    visible: (li) => {
                         return game.user.isGM && handler._multipleSelect === true && $(li).hasClass('selected');
                     },
                     callback: (li) => {
@@ -638,7 +643,7 @@ export class MultipleDocumentSelection {
             if (event.ctrlKey) {
                 delete this._startPointerDown;
                 this._groupSelect = new Set();
-                if (this instanceof foundry.applications.sidebar.tabs.CompendiumDirectory) {
+                if (this instanceof foundry.applications.sidebar.apps.Compendium) {
                     MultipleDocumentSelection.compendiums.push(this);
                 }
                 $(this.popOut ? $('.sidebar-tab,.compendium.directory', this.element) : this.element).addClass("multiple-select");
@@ -649,7 +654,7 @@ export class MultipleDocumentSelection {
                         // Start thes election process
                         delete that._startPointerDown;
                         that._groupSelect = new Set();
-                        if (that instanceof foundry.applications.sidebar.tabs.CompendiumDirectory) {
+                        if (that instanceof foundry.applications.sidebar.apps.Compendium) {
                             MultipleDocumentSelection.compendiums.push(that);
                         }
                         $(that.popOut ? $('.sidebar-tab,.compendium.directory', that.element) : that.element).addClass("multiple-select");
@@ -721,7 +726,7 @@ export class MultipleDocumentSelection {
             dir._multipleSelect = false;
         }
         delete MultipleDocumentSelection._lastId;
-        if (dir instanceof foundry.applications.sidebar.tabs.CompendiumDirectory) {
+        if (dir instanceof foundry.applications.sidebar.apps.Compendium) {
             MultipleDocumentSelection.compendiums.findSplice(c => c.id == dir.id);
         }
     }
